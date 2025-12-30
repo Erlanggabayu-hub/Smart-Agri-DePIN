@@ -3,197 +3,1199 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Agri - Realtime Monitoring</title>
+    <title>SmartAgri IoT - Dashboard Monitoring</title>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        .glass {
-            background: rgba(17, 24, 39, 0.8);
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(75, 85, 99, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+        }
+        
+        .status-online {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(34, 197, 94, 0.1));
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+        
+        .status-offline {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.1));
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        
+        .pulse-dot {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .value-update {
+            animation: highlight 0.6s ease;
+        }
+        
+        @keyframes highlight {
+            0% { background-color: transparent; }
+            50% { background-color: rgba(34, 197, 94, 0.2); }
+            100% { background-color: transparent; }
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(34, 197, 94, 0.5);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(34, 197, 94, 0.8);
+        }
+        
+        /* Progress Bar Animation */
+        .progress-bar {
+            transition: width 1.5s ease-in-out;
+        }
+        
+        /* Card Hover Effects */
+        .sensor-card:hover {
+            transform: translateY(-5px);
+            transition: transform 0.3s ease;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+            
+            .grid-cols-4 {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .grid-cols-4 {
+                grid-template-columns: 1fr !important;
+            }
         }
     </style>
 </head>
-<body class="bg-gray-950 text-gray-100 min-h-screen pb-10">
-
-    <nav class="border-b border-gray-800 bg-gray-900/80 sticky top-0 z-50 backdrop-blur-md">
-        <div class="max-w-5xl mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <div class="bg-emerald-500/10 p-2 rounded-lg border border-emerald-500/20">
-                    <i data-lucide="sprout" class="h-5 w-5 text-emerald-500"></i>
+<body class="min-h-screen">
+    
+    <!-- Header -->
+    <header class="border-b border-gray-800 bg-gray-900/90 backdrop-blur-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl shadow-lg">
+                        <i class="fas fa-seedling text-white text-2xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold bg-gradient-to-r from-green-400 to-emerald-300 bg-clip-text text-transparent">
+                            SmartAgri IoT
+                        </h1>
+                        <p class="text-sm text-gray-400">Monitoring Kelembaban & pH Tanah Sawah</p>
+                    </div>
                 </div>
-                <div>
-                    <h1 class="font-bold text-sm sm:text-lg tracking-tight">Smart Agri <span class="text-emerald-500">Dashboard</span></h1>
-                    <p class="text-[10px] text-gray-400">Jatibarang Unit #001</p>
+                
+                <div class="flex items-center gap-4">
+                    <div id="connection-status" class="flex items-center gap-2 px-4 py-2 rounded-full status-offline">
+                        <div class="w-3 h-3 rounded-full bg-red-500 pulse-dot"></div>
+                        <span class="text-sm font-medium">Device Offline</span>
+                    </div>
+                    
+                    <div class="hidden md:flex items-center gap-3">
+                        <div class="text-sm text-gray-400">
+                            <i class="fas fa-microchip mr-1"></i>
+                            <span class="font-mono">ESP32-001</span>
+                        </div>
+                        <div class="text-sm text-gray-400">
+                            <i class="fas fa-map-marker-alt mr-1"></i>
+                            <span>Jatibarang Unit</span>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div id="connection-status" class="flex items-center gap-2 px-3 py-1 bg-gray-800 rounded-full border border-gray-700">
-                <div class="w-2 h-2 bg-yellow-500 rounded-full animate-pulse" id="status-dot"></div>
-                <span class="text-xs font-mono text-gray-300" id="status-text">Waiting for Device...</span>
             </div>
         </div>
-    </nav>
-
-    <main class="max-w-5xl mx-auto px-4 mt-6 space-y-6">
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    </header>
+    
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        
+        <!-- Alert Banner -->
+        <div id="alert-banner" class="hidden glass-card mb-6 p-4 border-l-4 border-yellow-500">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <i class="fas fa-exclamation-triangle text-yellow-500 text-xl"></i>
+                    <div>
+                        <p class="font-medium" id="alert-message"></p>
+                        <p class="text-sm text-gray-400" id="alert-time"></p>
+                    </div>
+                </div>
+                <button onclick="dismissAlert()" class="text-gray-400 hover:text-white">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             
-            <div class="glass rounded-xl p-5 border-t-4 border-emerald-500 relative overflow-hidden group">
-                <div class="absolute right-2 top-2 opacity-10 group-hover:opacity-20 transition-all">
-                    <i data-lucide="droplets" class="h-16 w-16 text-emerald-500"></i>
+            <!-- Kelembaban Card -->
+            <div class="glass-card sensor-card p-5">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <p class="text-gray-400 text-sm font-semibold uppercase tracking-wider mb-1">
+                            <i class="fas fa-tint mr-2 text-blue-400"></i>Kelembaban Tanah
+                        </p>
+                        <div class="flex items-baseline mt-2">
+                            <span id="moisture-value" class="text-4xl font-bold">--</span>
+                            <span class="text-xl text-blue-400 ml-2">%</span>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">Sensor: Capacitive V2.0</p>
+                    </div>
+                    <div class="p-3 bg-blue-500/10 rounded-lg">
+                        <i class="fas fa-water text-blue-500 text-xl"></i>
+                    </div>
                 </div>
-                <p class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-1">Kelembaban Tanah</p>
-                <div class="flex items-end gap-1">
-                    <span class="text-4xl font-bold text-white" id="val-moist">--</span>
-                    <span class="text-lg text-emerald-500 mb-1">%</span>
+                
+                <div class="mt-4">
+                    <div class="flex justify-between text-xs text-gray-400 mb-1">
+                        <span>Kering (0-40%)</span>
+                        <span class="text-green-400">Ideal (60-80%)</span>
+                        <span>Basah (80-100%)</span>
+                    </div>
+                    <div class="h-2 bg-gray-800 rounded-full overflow-hidden">
+                        <div id="moisture-bar" class="h-full bg-gradient-to-r from-red-500 via-green-500 to-blue-500 progress-bar" style="width: 0%"></div>
+                    </div>
+                    <div class="flex justify-between mt-2">
+                        <span id="moisture-status" class="text-xs px-2 py-1 rounded bg-gray-800 text-gray-400">Mengukur...</span>
+                        <span id="moisture-time" class="text-xs text-gray-500">--:--:--</span>
+                    </div>
                 </div>
-                <div class="mt-3 w-full bg-gray-800 h-1.5 rounded-full overflow-hidden">
-                    <div id="bar-moist" class="bg-emerald-500 h-full w-0 transition-all duration-700"></div>
-                </div>
-                <p class="text-[10px] text-gray-500 mt-2 text-right">Ideal: 60-80%</p>
             </div>
-
-            <div class="glass rounded-xl p-5 border-t-4 border-purple-500 relative overflow-hidden group">
-                <div class="absolute right-2 top-2 opacity-10 group-hover:opacity-20 transition-all">
-                    <i data-lucide="flask-conical" class="h-16 w-16 text-purple-500"></i>
+            
+            <!-- pH Card -->
+            <div class="glass-card sensor-card p-5">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <p class="text-gray-400 text-sm font-semibold uppercase tracking-wider mb-1">
+                            <i class="fas fa-flask mr-2 text-purple-400"></i>pH Tanah
+                        </p>
+                        <div class="flex items-baseline mt-2">
+                            <span id="ph-value" class="text-4xl font-bold">--</span>
+                            <span class="text-xl text-purple-400 ml-2">pH</span>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">Sensor: PH-4502C</p>
+                    </div>
+                    <div class="p-3 bg-purple-500/10 rounded-lg">
+                        <i class="fas fa-vial text-purple-500 text-xl"></i>
+                    </div>
                 </div>
-                <p class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-1">pH Tanah</p>
-                <div class="flex items-end gap-1">
-                    <span class="text-4xl font-bold text-white" id="val-ph">--</span>
-                    <span class="text-lg text-purple-500 mb-1">pH</span>
+                
+                <div class="mt-4">
+                    <div id="ph-indicator" class="text-sm mb-3">
+                        <span id="ph-status" class="px-3 py-1.5 rounded-full bg-gray-800 text-gray-400">Kalibrasi...</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="text-xs text-gray-400">
+                            Ideal untuk padi: <span class="text-green-400">6.0 - 7.0</span>
+                        </div>
+                        <div class="text-xs text-gray-500" id="ph-time">--:--:--</div>
+                    </div>
                 </div>
-                <div class="mt-3 flex items-center gap-2">
-                    <span id="label-ph" class="text-[10px] px-2 py-0.5 rounded bg-gray-800 text-gray-400 border border-gray-700">Calibrating...</span>
-                </div>
-                <p class="text-[10px] text-gray-500 mt-2 text-right">Ideal: 6.0-7.0</p>
             </div>
-
-            <div class="glass rounded-xl p-5 border-t-4 border-blue-500">
-                <p class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-3">Status Perangkat</p>
+            
+            <!-- Suhu Card -->
+            <div class="glass-card sensor-card p-5">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <p class="text-gray-400 text-sm font-semibold uppercase tracking-wider mb-1">
+                            <i class="fas fa-thermometer-half mr-2 text-orange-400"></i>Suhu Lingkungan
+                        </p>
+                        <div class="flex items-baseline mt-2">
+                            <span id="temperature-value" class="text-4xl font-bold">--</span>
+                            <span class="text-xl text-orange-400 ml-2">°C</span>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">Sensor: DHT22</p>
+                    </div>
+                    <div class="p-3 bg-orange-500/10 rounded-lg">
+                        <i class="fas fa-temperature-high text-orange-500 text-xl"></i>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <span id="temp-feel" class="text-sm">Terasa: --</span>
+                        <span id="temp-time" class="text-xs text-gray-500">--:--:--</span>
+                    </div>
+                    <div class="h-2 bg-gray-800 rounded-full overflow-hidden">
+                        <div id="temp-bar" class="h-full bg-gradient-to-r from-blue-500 via-yellow-500 to-red-500 progress-bar" style="width: 0%"></div>
+                    </div>
+                    <div class="flex justify-between text-xs text-gray-400 mt-1">
+                        <span>Dingin</span>
+                        <span>Nyaman</span>
+                        <span>Panas</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Status Device Card -->
+            <div class="glass-card p-5">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <p class="text-gray-400 text-sm font-semibold uppercase tracking-wider mb-1">
+                            <i class="fas fa-microchip mr-2 text-cyan-400"></i>Status Perangkat
+                        </p>
+                        <div class="mt-2">
+                            <p class="text-2xl font-bold" id="device-status">OFFLINE</p>
+                            <p class="text-xs text-gray-500">ESP32 SmartAgri v1.0</p>
+                        </div>
+                    </div>
+                    <div class="p-3 bg-cyan-500/10 rounded-lg">
+                        <i class="fas fa-server text-cyan-500 text-xl"></i>
+                    </div>
+                </div>
+                
                 <div class="space-y-3">
-                    <div class="flex justify-between text-sm">
-                        <span class="text-gray-500">Baterai</span>
-                        <span class="text-blue-400 font-mono">82%</span>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-400">Baterai</span>
+                        <div class="flex items-center gap-2">
+                            <div class="w-16 h-2 bg-gray-800 rounded-full overflow-hidden">
+                                <div id="battery-bar" class="h-full bg-green-500 progress-bar" style="width: 0%"></div>
+                            </div>
+                            <span id="battery-value" class="text-sm font-mono">--%</span>
+                        </div>
                     </div>
-                    <div class="flex justify-between text-sm">
-                        <span class="text-gray-500">Suhu Alat</span>
-                        <span class="text-orange-400 font-mono" id="val-temp">--°C</span>
+                    
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-400">Sinyal WiFi</span>
+                        <div class="flex items-center gap-2">
+                            <div class="flex gap-1">
+                                <div class="w-2 h-2 bg-gray-700 rounded-full bar-1"></div>
+                                <div class="w-2 h-2 bg-gray-700 rounded-full bar-2"></div>
+                                <div class="w-2 h-2 bg-gray-700 rounded-full bar-3"></div>
+                                <div class="w-2 h-2 bg-gray-700 rounded-full bar-4"></div>
+                            </div>
+                            <span id="wifi-strength" class="text-sm font-mono">-- dBm</span>
+                        </div>
                     </div>
-                    <div class="flex justify-between text-sm border-t border-gray-700 pt-2">
-                        <span class="text-gray-500">Last Sync</span>
-                        <span class="text-gray-300 font-mono text-xs" id="last-sync">--:--:--</span>
+                    
+                    <div class="pt-3 border-t border-gray-800">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-400">Update Terakhir:</span>
+                            <span id="last-update" class="font-mono">--:--:--</span>
+                        </div>
+                        <div class="flex justify-between text-sm mt-1">
+                            <span class="text-gray-400">Paket Data:</span>
+                            <span id="packet-count" class="font-mono text-green-400">0</span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-
-        <div class="glass rounded-xl p-5">
-            <h3 class="text-sm font-bold text-gray-200 mb-4 flex items-center gap-2">
-                <i data-lucide="activity" class="h-4 w-4 text-emerald-500"></i>
-                Grafik Live Data (1 Jam Terakhir)
-            </h3>
-            <div class="h-40 flex items-end justify-between gap-1" id="chart-container">
+        
+        <!-- Charts Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <!-- Chart Kelembaban -->
+            <div class="glass-card p-5">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
+                    <h3 class="text-lg font-semibold flex items-center gap-2">
+                        <i class="fas fa-chart-line text-green-500"></i>
+                        Trend Kelembaban (60 Menit Terakhir)
+                    </h3>
+                    <div class="flex gap-2">
+                        <button onclick="changeChartRange('1h')" class="text-xs px-3 py-1.5 bg-green-500/20 text-green-400 rounded-lg hover:bg-green-500/30">
+                            1 Jam
+                        </button>
+                        <button onclick="changeChartRange('6h')" class="text-xs px-3 py-1.5 bg-gray-800 rounded-lg hover:bg-gray-700">
+                            6 Jam
+                        </button>
+                        <button onclick="changeChartRange('24h')" class="text-xs px-3 py-1.5 bg-gray-800 rounded-lg hover:bg-gray-700">
+                            24 Jam
+                        </button>
+                    </div>
                 </div>
+                <div class="h-64">
+                    <canvas id="moisture-chart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Chart pH -->
+            <div class="glass-card p-5">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
+                    <h3 class="text-lg font-semibold flex items-center gap-2">
+                        <i class="fas fa-chart-bar text-purple-500"></i>
+                        Trend pH Tanah (60 Menit Terakhir)
+                    </h3>
+                    <div class="flex items-center gap-3">
+                        <div class="text-sm text-gray-400">
+                            Rata-rata: <span id="ph-average" class="font-bold text-purple-400">--</span>
+                        </div>
+                        <button onclick="exportChartData()" class="text-xs px-3 py-1.5 bg-gray-800 rounded-lg hover:bg-gray-700 flex items-center gap-1">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                    </div>
+                </div>
+                <div class="h-64">
+                    <canvas id="ph-chart"></canvas>
+                </div>
+            </div>
         </div>
-
-        <div class="rounded-xl border border-gray-800 bg-black/40 p-4 font-mono text-xs text-gray-400 h-32 overflow-y-auto" id="system-log">
-            <p>> System initialized...</p>
-            <p>> Connecting to IoT Gateway...</p>
+        
+        <!-- System Log & Controls -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- System Log -->
+            <div class="glass-card p-5 lg:col-span-2">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold flex items-center gap-2">
+                        <i class="fas fa-terminal text-blue-500"></i>
+                        System Log
+                    </h3>
+                    <div class="flex gap-2">
+                        <button onclick="toggleAutoScroll()" id="auto-scroll-btn" class="text-xs px-3 py-1.5 bg-blue-500/20 text-blue-400 rounded-lg">
+                            <i class="fas fa-sync mr-1"></i> Auto-scroll: ON
+                        </button>
+                        <button onclick="clearLogs()" class="text-xs px-3 py-1.5 bg-gray-800 rounded-lg hover:bg-gray-700">
+                            <i class="fas fa-trash mr-1"></i> Clear
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="system-log" class="bg-gray-900/50 border border-gray-800 rounded-lg p-4 h-64 overflow-y-auto font-mono text-sm">
+                    <div class="text-gray-500 mb-2">[12:00:00] Sistem SmartAgri IoT dimulai...</div>
+                    <div class="text-blue-500 mb-2">[12:00:01] Inisialisasi dashboard monitoring</div>
+                    <div class="text-yellow-500 mb-2">[12:00:02] Mencari perangkat IoT...</div>
+                    <div class="text-gray-500">[12:00:03] Mode simulasi diaktifkan</div>
+                </div>
+                
+                <div class="flex gap-4 mt-3 text-xs">
+                    <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 rounded-full bg-blue-500"></div>
+                        <span class="text-gray-400">INFO</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 rounded-full bg-yellow-500"></div>
+                        <span class="text-gray-400">WARNING</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 rounded-full bg-red-500"></div>
+                        <span class="text-gray-400">ERROR</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 rounded-full bg-green-500"></div>
+                        <span class="text-gray-400">SUCCESS</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Device Controls -->
+            <div class="glass-card p-5">
+                <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                    <i class="fas fa-sliders-h text-orange-500"></i>
+                    Kontrol Perangkat
+                </h3>
+                
+                <div class="space-y-4">
+                    <!-- Sampling Rate -->
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-2">
+                            <i class="fas fa-clock mr-2"></i>Interval Sampling
+                        </label>
+                        <div class="flex items-center gap-3">
+                            <input type="range" id="sampling-slider" min="1" max="60" value="5" 
+                                   class="flex-1 h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                            <span id="sampling-value" class="text-sm font-mono w-12">5s</span>
+                        </div>
+                        <div class="flex justify-between text-xs text-gray-500 mt-1">
+                            <span>1 detik</span>
+                            <span>30 detik</span>
+                            <span>60 detik</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="calibrateSensors()" class="py-3 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-lg hover:bg-blue-500/30 transition flex items-center justify-center gap-2">
+                            <i class="fas fa-wrench"></i>
+                            <span>Kalibrasi</span>
+                        </button>
+                        <button onclick="resetDevice()" class="py-3 bg-gray-800 text-gray-300 rounded-lg hover:bg-gray-700 transition flex items-center justify-center gap-2">
+                            <i class="fas fa-redo"></i>
+                            <span>Reset</span>
+                        </button>
+                        <button onclick="toggleSimulation()" id="simulation-btn" class="py-3 bg-green-500/20 text-green-400 border border-green-500/30 rounded-lg hover:bg-green-500/30 transition flex items-center justify-center gap-2">
+                            <i class="fas fa-play"></i>
+                            <span>Simulasi: ON</span>
+                        </button>
+                        <button onclick="connectDevice()" class="py-3 bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 rounded-lg hover:bg-cyan-500/30 transition flex items-center justify-center gap-2">
+                            <i class="fas fa-wifi"></i>
+                            <span>Connect</span>
+                        </button>
+                    </div>
+                    
+                    <!-- Device Info -->
+                    <div class="pt-4 border-t border-gray-800">
+                        <h4 class="text-sm text-gray-400 mb-3">
+                            <i class="fas fa-info-circle mr-2"></i>Informasi Perangkat
+                        </h4>
+                        <div class="space-y-2">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-400">Waktu Aktif:</span>
+                                <span id="uptime" class="font-mono text-cyan-400">00:00:00</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-400">Firmware:</span>
+                                <span class="font-mono text-green-400">v2.1.0</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-400">IP Address:</span>
+                                <span id="ip-address" class="font-mono text-yellow-400">192.168.1.100</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-
     </main>
+    
+    <!-- Footer -->
+    <footer class="mt-8 pt-6 pb-8 border-t border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="text-center md:text-left">
+                    <p class="text-lg font-bold bg-gradient-to-r from-green-400 to-emerald-300 bg-clip-text text-transparent">
+                        SmartAgri IoT Dashboard
+                    </p>
+                    <p class="text-sm text-gray-400 mt-1">Monitoring Sistem Pertanian Berbasis IoT</p>
+                </div>
+                
+                <div class="flex gap-4">
+                    <a href="#" class="text-gray-400 hover:text-white transition">
+                        <i class="fab fa-github text-xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition">
+                        <i class="fab fa-twitter text-xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition">
+                        <i class="fab fa-youtube text-xl"></i>
+                    </a>
+                </div>
+                
+                <div class="text-center md:text-right">
+                    <p class="text-sm text-gray-400">
+                        © 2024 SmartAgri Team. All rights reserved.
+                    </p>
+                    <p class="text-xs text-gray-500 mt-1">
+                        Version 1.0.0 | Dashboard Update: <span id="dashboard-version">Today</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
 
+    <!-- JavaScript -->
     <script>
-        lucide.createIcons();
-
-        // ==========================================
-        // CONFIG AREA (Tempat menaruh Kunci Database nanti)
-        // ==========================================
-        const IOT_CONFIG = {
-            useRealData: false, // Ubah ke 'true' jika alat sudah siap
-            firebaseUrl: "",    // Nanti diisi URL Firebase
-            deviceId: "ESP32-JATIBARANG-01"
+        // ============================================
+        // CONFIGURASI DAN VARIABEL GLOBAL
+        // ============================================
+        const CONFIG = {
+            deviceId: 'ESP32-JATIBARANG-01',
+            simulationActive: true,
+            samplingInterval: 5000, // 5 detik
+            maxDataPoints: 60, // Data untuk 60 menit (1 jam)
+            autoScroll: true
         };
 
-        // ==========================================
-        // SIMULATION LOGIC (Sementara, sebelum ada alat)
-        // ==========================================
+        // Data storage
+        let dataHistory = {
+            timestamps: [],
+            moisture: [],
+            ph: [],
+            temperature: []
+        };
+
+        // Chart instances
+        let moistureChart = null;
+        let phChart = null;
         
-        function addLog(msg) {
-            const logBox = document.getElementById('system-log');
-            const time = new Date().toLocaleTimeString('id-ID');
-            logBox.innerHTML += `<p class="border-l-2 border-emerald-500 pl-2 mb-1"><span class="text-gray-600">[${time}]</span> ${msg}</p>`;
-            logBox.scrollTop = logBox.scrollHeight;
-        }
+        // System state
+        let isConnected = false;
+        let startTime = Date.now();
+        let packetCounter = 0;
+        let simulationInterval = null;
 
-        function updateDisplay(data) {
-            // Update Angka
-            document.getElementById('val-moist').innerText = data.moist;
-            document.getElementById('bar-moist').style.width = data.moist + '%';
-            document.getElementById('val-ph').innerText = data.ph;
-            document.getElementById('val-temp').innerText = data.temp + '°C';
+        // ============================================
+        // FUNGSI INISIALISASI
+        // ============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('SmartAgri IoT Dashboard dimuat');
             
-            // Update Label pH
-            const phLabel = document.getElementById('label-ph');
-            if(data.ph < 6) { 
-                phLabel.innerText = "Terlalu Asam"; 
-                phLabel.className = "text-[10px] px-2 py-0.5 rounded bg-red-900/30 text-red-400 border border-red-500/30";
-            } else if (data.ph > 7.5) {
-                phLabel.innerText = "Terlalu Basa";
-                phLabel.className = "text-[10px] px-2 py-0.5 rounded bg-blue-900/30 text-blue-400 border border-blue-500/30";
-            } else {
-                phLabel.innerText = "Netral (Optimal)";
-                phLabel.className = "text-[10px] px-2 py-0.5 rounded bg-emerald-900/30 text-emerald-400 border border-emerald-500/30";
-            }
-
-            // Update Waktu
-            document.getElementById('last-sync').innerText = new Date().toLocaleTimeString();
+            // Inisialisasi charts
+            initializeCharts();
             
-            // Update Status
-            document.getElementById('status-text').innerText = "Device Connected";
-            document.getElementById('status-text').className = "text-xs font-mono text-emerald-400";
-            document.getElementById('status-dot').className = "w-2 h-2 bg-emerald-500 rounded-full animate-pulse";
-        }
+            // Setup event listeners
+            setupEventListeners();
+            
+            // Mulai simulasi data
+            startDataSimulation();
+            
+            // Update waktu aktif
+            updateUptime();
+            setInterval(updateUptime, 1000);
+            
+            // Log system start
+            addSystemLog('Sistem dashboard dimuat dengan sukses', 'success');
+            addSystemLog('Mode simulasi aktif. Tekan "Connect" untuk koneksi real device', 'info');
+        });
 
-        // Jalankan Simulasi
-        if (!IOT_CONFIG.useRealData) {
-            setTimeout(() => {
-                addLog("Simulating connection to " + IOT_CONFIG.deviceId);
-                
-                setInterval(() => {
-                    // Buat data acak yang masuk akal
-                    const fakeData = {
-                        moist: (60 + Math.random() * 10).toFixed(0), // 60-70%
-                        ph: (6.5 + Math.random() * 0.5 - 0.25).toFixed(1), // 6.2 - 6.8
-                        temp: (26 + Math.random()).toFixed(1)
-                    };
-                    
-                    updateDisplay(fakeData);
-                    
-                    // Random log event
-                    if(Math.random() > 0.7) addLog("Received data packet (48 bytes)");
-                    
-                }, 3000); // Update tiap 3 detik
-            }, 1000);
-        }
-
-        // Chart Builder
-        const chartContainer = document.getElementById('chart-container');
-        for(let i=0; i<30; i++) {
-            let div = document.createElement('div');
-            div.className = "flex-1 bg-emerald-500/10 border-t border-emerald-500/40 rounded-t-sm transition-all duration-500";
-            div.style.height = (20 + Math.random() * 60) + "%";
-            chartContainer.appendChild(div);
-        }
-        setInterval(() => {
-            Array.from(chartContainer.children).forEach(bar => {
-                bar.style.height = (20 + Math.random() * 60) + "%";
+        // ============================================
+        // FUNGSI CHART (GRAFIK)
+        // ============================================
+        function initializeCharts() {
+            // Chart untuk kelembaban
+            const moistCtx = document.getElementById('moisture-chart').getContext('2d');
+            moistureChart = new Chart(moistCtx, {
+                type: 'line',
+                data: {
+                    labels: dataHistory.timestamps,
+                    datasets: [{
+                        label: 'Kelembaban (%)',
+                        data: dataHistory.moisture,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 0,
+                        pointHoverRadius: 5
+                    }]
+                },
+                options: getChartOptions('Kelembaban Tanah (%)', '%')
             });
-        }, 3000);
 
-    </script>
-</body>
-</html>
-      
+            // Chart untuk pH
+            const phCtx = document.getElementById('ph-chart').getContext('2d');
+            phChart = new Chart(phCtx, {
+                type: 'line',
+                data: {
+                    labels: dataHistory.timestamps,
+                    datasets: [{
+                        label: 'pH Tanah',
+                        data: dataHistory.ph,
+                        borderColor: '#8b5cf6',
+                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 0,
+                        pointHoverRadius: 5
+                    }]
+                },
+                options: getChartOptions('pH Level', 'pH')
+            });
+        }
+
+        function getChartOptions(title, unit) {
+            return {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.dataset.label}: ${context.parsed.y} ${unit}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        ticks: { color: '#9ca3af', maxTicksLimit: 6 }
+                    },
+                    y: {
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        ticks: { color: '#9ca3af' },
+                        title: {
+                            display: true,
+                            text: unit,
+                            color: '#9ca3af'
+                        }
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                }
+            };
+        }
+
+        // ============================================
+        // FUNGSI SIMULASI DATA
+        // ============================================
+        function startDataSimulation() {
+            if (simulationInterval) {
+                clearInterval(simulationInterval);
+            }
+            
+            simulationInterval = setInterval(() => {
+                if (!CONFIG.simulationActive) return;
+                
+                // Generate random sensor data (realistic values)
+                const sensorData = {
+                    moisture: 65 + (Math.random() * 15 - 7.5), // 57.5-72.5%
+                    ph: 6.5 + (Math.random() * 0.6 - 0.3), // 6.2-6.8
+                    temperature: 28 + (Math.random() * 4 - 2), // 26-30°C
+                    battery: 85 + (Math.random() * 10 - 5), // 80-90%
+                    timestamp: new Date().toISOString()
+                };
+                
+                // Process the data
+                processSensorData(sensorData);
+                
+            }, CONFIG.samplingInterval);
+        }
+
+        function processSensorData(data) {
+            // Update packet counter
+            packetCounter++;
+            
+            // Format waktu untuk display
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('id-ID', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            
+            // Update display dengan animasi
+            updateDisplay(data, timeString);
+            
+            // Update charts
+            updateCharts(data, timeString);
+            
+            // Check for alerts
+            checkAlerts(data, timeString);
+            
+            // Update last update time
+            document.getElementById('last-update').textContent = timeString;
+            document.getElementById('packet-count').textContent = packetCounter;
+            
+            // Add to log setiap 5 packet
+            if (packetCounter % 5 === 0) {
+                addSystemLog(`Data diterima: Moist=${data.moisture.toFixed(1)}%, pH=${data.ph.toFixed(1)}`, 'info');
+            }
+        }
+
+        // ============================================
+        // FUNGSI UPDATE DISPLAY
+        // ============================================
+        function updateDisplay(data, timeString) {
+            // Helper function untuk animasi update nilai
+            function animateValue(elementId, newValue, unit = '') {
+                const element = document.getElementById(elementId);
+                if (element) {
+                    element.classList.add('value-update');
+                    element.textContent = newValue + unit;
+                    setTimeout(() => element.classList.remove('value-update'), 600);
+                }
+            }
+            
+            // Update kelembaban
+            const moistureValue = data.moisture.toFixed(1);
+            animateValue('moisture-value', moistureValue);
+            document.getElementById('moisture-bar').style.width = `${data.moisture}%`;
+            document.getElementById('moisture-time').textContent = timeString;
+            
+            // Update status kelembaban
+            const moistStatus = document.getElementById('moisture-status');
+            if (data.moisture < 40) {
+                moistStatus.textContent = 'Terlalu Kering';
+                moistStatus.className = 'text-xs px-2 py-1 rounded bg-red-500/20 text-red-400';
+            } else if (data.moisture > 80) {
+                moistStatus.textContent = 'Terlalu Basah';
+                moistStatus.className = 'text-xs px-2 py-1 rounded bg-blue-500/20 text-blue-400';
+            } else {
+                moistStatus.textContent = 'Ideal';
+                moistStatus.className = 'text-xs px-2 py-1 rounded bg-green-500/20 text-green-400';
+            }
+            
+            // Update pH
+            const phValue = data.ph.toFixed(1);
+            animateValue('ph-value', phValue);
+            document.getElementById('ph-time').textContent = timeString;
+            
+            // Update status pH
+            updatePHStatus(data.ph);
+            
+            // Update suhu
+            const tempValue = data.temperature.toFixed(1);
+            animateValue('temperature-value', tempValue);
+            document.getElementById('temp-bar').style.width = `${(data.temperature / 40) * 100}%`;
+            document.getElementById('temp-time').textContent = timeString;
+            
+            // Update rasa suhu
+            const tempFeel = document.getElementById('temp-feel');
+            if (data.temperature < 20) {
+                tempFeel.textContent = 'Terasa: Dingin';
+                tempFeel.className = 'text-sm text-blue-400';
+            } else if (data.temperature < 30) {
+                tempFeel.textContent = 'Terasa: Nyaman';
+                tempFeel.className = 'text-sm text-green-400';
+            } else {
+                tempFeel.textContent = 'Terasa: Panas';
+                tempFeel.className = 'text-sm text-red-400';
+            }
+            
+            // Update baterai
+            const batteryValue = Math.round(data.battery);
+            animateValue('battery-value', batteryValue, '%');
+            document.getElementById('battery-bar').style.width = `${data.battery}%`;
+            
+            // Update WiFi signal (simulasi)
+            const wifiStrength = -40 - Math.random() * 20;
+            document.getElementById('wifi-strength').textContent = `${wifiStrength.toFixed(0)} dBm`;
+            
+            // Update WiFi bars
+            updateWiFiBars(wifiStrength);
+        }
+
+        function updatePHStatus(ph) {
+            const phStatus = document.getElementById('ph-status');
+            
+            if (ph < 5.5) {
+                phStatus.textContent = 'Terlalu Asam';
+                phStatus.className = 'px-3 py-1.5 rounded-full bg-red-500/20 text-red-400';
+            } else if (ph < 6.0) {
+                phStatus.textContent = 'Agak Asam';
+                phStatus.className = 'px-3 py-1.5 rounded-full bg-orange-500/20 text-orange-400';
+            } else if (ph <= 7.0) {
+                phStatus.textContent = 'Optimal';
+                phStatus.className = 'px-3 py-1.5 rounded-full bg-green-500/20 text-green-400';
+            } else if (ph <= 7.5) {
+                phStatus.textContent = 'Agak Basa';
+                phStatus.className = 'px-3 py-1.5 rounded-full bg-blue-500/20 text-blue-400';
+            } else {
+                phStatus.textContent = 'Terlalu Basa';
+                phStatus.className = 'px-3 py-1.5 rounded-full bg-purple-500/20 text-purple-400';
+            }
+            
+            // Update pH average
+            updatePHAverage();
+        }
+
+        function updateWiFiBars(strength) {
+            const bars = ['.bar-1', '.bar-2', '.bar-3', '.bar-4'];
+            
+            // Reset semua bar
+            bars.forEach(selector => {
+                const bar = document.querySelector(selector);
+                if (bar) bar.style.backgroundColor = '#374151'; // gray-700
+            });
+            
+            // Tentukan berapa bar yang aktif berdasarkan strength
+            let activeBars = 0;
+            if (strength >= -55) activeBars = 4;
+            else if (strength >= -65) activeBars = 3;
+            else if (strength >= -75) activeBars = 2;
+            else if (strength >= -85) activeBars = 1;
+            
+            // Aktifkan bar
+            for (let i = 0; i < activeBars; i++) {
+                const bar = document.querySelector(bars[i]);
+                if (bar) bar.style.backgroundColor = '#10b981'; // green-500
+            }
+        }
+
+        // ============================================
+        // FUNGSI UPDATE CHARTS
+        // ============================================
+        function updateCharts(data, timeString) {
+            const shortTime = timeString.slice(0, 5); // HH:MM saja
+            
+            // Update data history
+            dataHistory.timestamps.push(shortTime);
+            dataHistory.moisture.push(data.moisture);
+            dataHistory.ph.push(data.ph);
+            dataHistory.temperature.push(data.temperature);
+            
+            // Batasi data history
+            if (dataHistory.timestamps.length > CONFIG.maxDataPoints) {
+                dataHistory.timestamps.shift();
+                dataHistory.moisture.shift();
+                dataHistory.ph.shift();
+                dataHistory.temperature.shift();
+            }
+            
+            // Update charts
+            moistureChart.update();
+            phChart.update();
+        }
+
+        // ============================================
+        // FUNGSI ALERT SYSTEM
+        // ============================================
+        function checkAlerts(data, timeString) {
+            const alerts = [];
+            
+            // Check kelembaban
+            if (data.moisture < 40) {
+                alerts.push({
+                    type: 'error',
+                    message: `⚠️ Kelembaban tanah terlalu rendah: ${data.moisture.toFixed(1)}%`,
+                    time: timeString
+                });
+                addSystemLog(`ALERT: Kelembaban kritis (${data.moisture.toFixed(1)}%)`, 'error');
+            } else if (data.moisture > 85) {
+                alerts.push({
+                    type: 'warning',
+                    message: `⚠️ Kelembaban tanah terlalu tinggi: ${data.moisture.toFixed(1)}%`,
+                    time: timeString
+                });
+                addSystemLog(`WARNING: Kelembaban tinggi (${data.moisture.toFixed(1)}%)`, 'warning');
+            }
+            
+            // Check pH
+            if (data.ph < 5.5) {
+                alerts.push({
+                    type: 'error',
+                    message: `⚠️ pH tanah terlalu asam: ${data.ph.toFixed(1)}`,
+                    time: timeString
+                });
+                addSystemLog(`ALERT: pH terlalu asam (${data.ph.toFixed(1)})`, 'error');
+            } else if (data.ph > 7.5) {
+                alerts.push({
+                    type: 'error',
+                    message: `⚠️ pH tanah terlalu basa: ${data.ph.toFixed(1)}`,
+                    time: timeString
+                });
+                addSystemLog(`ALERT: pH terlalu basa (${data.ph.toFixed(1)})`, 'error');
+            }
+            
+            // Check suhu
+            if (data.temperature > 35) {
+                alerts.push({
+                    type: 'warning',
+                    message: `⚠️ Suhu lingkungan tinggi: ${data.temperature.toFixed(1)}°C`,
+                    time: timeString
+                });
+                addSystemLog(`WARNING: Suhu tinggi (${data.temperature.toFixed(1)}°C)`, 'warning');
+            }
+            
+            // Check baterai
+            if (data.battery < 20) {
+                alerts.push({
+                    type: 'warning',
+                    message: `⚠️ Baterai perangkat rendah: ${Math.round(data.battery)}%`,
+                    time: timeString
+                });
+                addSystemLog(`WARNING: Baterai rendah (${Math.round(data.battery)}%)`, 'warning');
+            }
+            
+            // Tampilkan alert jika ada
+            if (alerts.length > 0) {
+                showAlert(alerts[0]);
+            }
+        }
+
+        function showAlert(alert) {
+            const banner = document.getElementById('alert-banner');
+            const message = document.getElementById('alert-message');
+            const time = document.getElementById('alert-time');
+            
+            // Update alert content
+            message.textContent = alert.message;
+            time.textContent = alert.time;
+            
+            // Update style berdasarkan type
+            if (alert.type === 'error') {
+                banner.className = 'glass-card mb-6 p-4 border-l-4 border-red-500';
+            } else {
+                banner.className = 'glass-card mb-6 p-4 border-l-4 border-yellow-500';
+            }
+            
+            // Tampilkan banner
+            banner.classList.remove('hidden');
+            
+            // Auto hide setelah 10 detik
+            setTimeout(() => {
+                if (!banner.classList.contains('hidden')) {
+                    banner.classList.add('hidden');
+                }
+            }, 10000);
+        }
+
+        // ============================================
+        // FUNGSI SYSTEM LOG
+        // ============================================
+        function addSystemLog(message, type = 'info') {
+            const logContainer = document.getElementById('system-log');
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('id-ID', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            
+            // Tentukan warna berdasarkan type
+            let colorClass = 'text-gray-400';
+            switch (type) {
+                case 'info': colorClass = 'text-blue-400'; break;
+                case 'warning': colorClass = 'text-yellow-400'; break;
+                case 'error': colorClass = 'text-red-400'; break;
+                case 'success': colorClass = 'text-green-400'; break;
+            }
+            
+            // Buat log entry
+            const logEntry = document.createElement('div');
+            logEntry.className = `mb-1 ${colorClass}`;
+            logEntry.innerHTML = `[${timeString}] ${message}`;
+            
+            // Tambahkan ke container
+            logContainer.appendChild(logEntry);
+            
+            // Auto-scroll jika aktif
+            if (CONFIG.autoScroll) {
+                logContainer.scrollTop = logContainer.scrollHeight;
+            }
+            
+            // Batasi jumlah log entries
+            if (logContainer.children.length > 50) {
+                logContainer.removeChild(logContainer.firstChild);
+            }
+        }
+
+        // ============================================
+        // FUNGSI UTILITAS
+        // ============================================
+        function updateUptime() {
+            const elapsed = Date.now() - startTime;
+            const hours = Math.floor(elapsed / 3600000);
+            const minutes = Math.floor((elapsed % 3600000) / 60000);
+            const seconds = Math.floor((elapsed % 60000) / 1000);
+            
+            document.getElementById('uptime').textContent = 
+                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function updatePHAverage() {
+            if (dataHistory.ph.length === 0) return;
+            
+            const sum = dataHistory.ph.reduce((a, b) => a + b, 0);
+            const avg = sum / dataHistory.ph.length;
+            
+            document.getElementById('ph-average').textContent = avg.toFixed(2);
+        }
+
+        function updateConnectionStatus(connected) {
+            const statusElement = document.getElementById('connection-status');
+            const deviceStatus = document.getElementById('device-status');
+            
+            isConnected = connected;
+            
+            if (connected) {
+                statusElement.className = 'flex items-center gap-2 px-4 py-2 rounded-full status-online';
+                statusElement.innerHTML = `
+                    <div class="w-3 h-3 rounded-full bg-green-500 pulse-dot"></div>
+                    <span class="text-sm font-medium">Device Online</span>
+                `;
+                deviceStatus.textContent = 'ONLINE';
+                deviceStatus.className = 'text-2xl font-bold text-green-400';
+                addSystemLog('Perangkat IoT terhubung', 'success');
+            } else {
+                statusElement.className = 'flex items-center gap-2 px-4 py-2 rounded-full status-offline';
+                statusElement.innerHTML = `
+                    <div class="w-3 h-3 rounded-full bg-red-500 pulse-dot"></div>
+                    <span class="text-sm font-medium">Device Offline</span>
+                `;
+                deviceStatus.textContent = 'OFFLINE';
+                deviceStatus.className = 'text-2xl font-bold text-red-400';
+                addSystemLog('Perangkat IoT terputus', 'error');
+            }
+        }
+
+        // ============================================
+        // FUNGSI CONTROL PANEL
+        // ============================================
+        function setupEventListeners() {
+            // Sampling rate slider
+            const slider = document.getElementById('sampling-slider');
+            const valueDisplay = document.getElementById('sampling-value');
+            
+            slider.addEventListener('input', function() {
+                const value = this.value;
+                valueDisplay.textContent = value + 's';
+                CONFIG.samplingInterval = value * 1000;
+                
+                if (CONFIG.simulationActive) {
+                    startDataSimulation();
+                    addSystemLog(`Interval sampling diubah menjadi ${value} detik`, 'info');
+                }
+            });
+        }
+
+        function toggleSimulation() {
+            CONFIG.simulationActive = !CONFIG.simulationActive;
+            const button = document.getElementById('simulation-btn');
+            
+            if (CONFIG.simulationActive) {
+                button.innerHTML = '<i class="fas fa-play"></i><span>Simulasi: ON</span>';
+                button.className = 'py-3 bg-green-500/20 text-green-400 border border-green-500/30 rounded-lg hover:bg-green-500/30 transition flex items-center justify-center gap-2';
+                startDataSimulation();
+                addSystemLog('Mode simulasi diaktifkan', 'success');
+            } else {
+                button.innerHTML = '<i class="fas fa-pause"></i><span>Simulasi: OFF</span>';
+                button.className = 'py-3 bg-gray-800 text-gray-300 rounded-lg hover:bg-gray-700 transition flex items-center justify-center gap-2';
+                if (simulationInterval) {
+                    clearInterval(simulationInterval);
+                }
+                addSystemLog('Mode simulasi dimatikan', 'info');
+            }
+        }
+
+        function connectDevice() {
+            if (isConnected) {
+                // Disconnect
+                updateConnectionStatus(false);
+                addSystemLog('Memutuskan koneksi perangkat', 'warning');
+            } else {
+                // Connect (simulasi)
+                updateConnectionStatus(true);
+                
+                // Simulate connection delay
+                setTimeout(() => {
+                    addSystemLog('Berhasil terhubung ke ESP32-001', 'success');
+                    addSystemLog('Menerima konfigurasi perangkat', 'info');
+                    addSystemLog('Sensor aktif: Kelembaban, pH, Suhu', 'info');
+                }, 1000);
+            }
+        }
+
+        function calibrateSensors() {
+            addSystemLog('Memulai kalibrasi sensor...', 'info');
+            
+            // Simulate calibration process
+            setTimeout(() => {
+                addSystemLog('Kalibrasi sensor kelembaban: OK', 'success');
+                setTimeout(() => {
+                    addSystemLog('Kalibrasi sensor pH: OK', 'success');
+                    setTimeout(() => {
+                        addSystemLog('Kalibrasi sensor suhu: OK', 'success');
+                        addSystemLog('Semua sensor dikalibrasi dengan sukses', 'success');
+                    }, 800);
+                }, 800);
+            }, 800);
+        }
+
+        function resetDevice() {
+            addSystemLog('Reset perangkat dimulai...', 'warning');
+            
+            // Reset display values
+            document.getElementById('moisture-value').textContent = '--';
+            document.getElementById('moisture-bar').style.width = '0%';
+            document.getElementById('ph-value').textContent = '--';
+            document.getElementById('temperature-value').textContent = '--';
+            document.getElementById('battery-value').textContent = '--%';
+            document.getElementById('battery-bar').style.width = '0%';
+            
+            // Reset data history
+            dataHistory = {
+                timestamps: [],
+                moisture: [],
+                ph: [],
+                temperature: []
+            };
+            
+            // Reset charts
+            moistureChart.data.labels = [];
+            moistureChart.data.datasets[0].data = [];
+            moistureChart.update();
+            
+            phChart.data.labels = [];
+            phChart.data.datasets[0].data = [];
+            phChart.update();
+            
+            // Reset packet counter
+            packetCounter = 0;
+            document.getElementById('packet-count').textContent = '0';
+            
+            addSystemLog('Perangkat berhasil di-reset', 'success');
+        }
+
+        function changeChartRange(range) {
+            let points = 60; // 1 jam default
+            
+            switch (range) {
+                case '1h': points = 60; break; // 1 point per menit
+                case '6h': points = 72; break; // 1 point per 5 menit
+                case '24h': points = 96; break; // 1 point per 15 menit
+            }
+            
+            CONFIG.maxDataPoints = points;
+            addSystemLog(`Rentang chart diubah ke ${range}`, 'info');
+        }
+
+        function toggleAutoScroll() {
+            CONFIG.autoScroll = !CONFIG.autoScroll;
+            const button = document.getElementById('auto-scroll-btn');
+            
+            if (CONFIG.autoScroll) {
+                button.innerHTML = '<i class="fas fa-sync mr-1"></i> Auto-scroll: ON';
+                button.className = 'text-xs px-3 py-1.5 bg-blue-500/20 text-blue-400 rounded-lg';
+            } else {
+                button.innerHTML = '<i class="fas fa-sync mr-1"></i> Auto-scroll: OFF';
+                button.className = 'text-xs px-3 py-1.5 bg-gray-800 rounded-lg';
+            }
+        }
+
+        function clearLogs() {
+            const logContainer = document.getElementById('system-log');
+            logContainer.innerHTML = '<div class="text-gray-500">[12:00:00] Log dibersihkan</div>';
+            addSystemLog('System log dibersihkan', 'info');
+        }
+
+        function dismissAlert() {
+            document.getElementById('alert-banner

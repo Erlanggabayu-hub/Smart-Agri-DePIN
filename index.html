@@ -3,168 +3,197 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Agri DePIN</title>
+    <title>Smart Agri - Realtime Monitoring</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Space Grotesk', sans-serif; }
-        
-        /* Background Grid Animation */
-        .bg-grid {
-            background-size: 50px 50px;
-            background-image: linear-gradient(to right, rgba(16, 185, 129, 0.05) 1px, transparent 1px),
-                              linear-gradient(to bottom, rgba(16, 185, 129, 0.05) 1px, transparent 1px);
-            animation: moveGrid 20s linear infinite;
-        }
-        @keyframes moveGrid {
-            0% { background-position: 0 0; }
-            100% { background-position: 50px 50px; }
-        }
-
-        .glass-card {
-            background: rgba(10, 10, 10, 0.6);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(34, 197, 94, 0.2);
-            box-shadow: 0 0 15px rgba(0,0,0,0.5);
-        }
-        
-        .glow-text {
-            text-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+        body { font-family: 'Inter', sans-serif; }
+        .glass {
+            background: rgba(17, 24, 39, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(75, 85, 99, 0.4);
         }
     </style>
 </head>
-<body class="bg-black text-white min-h-screen relative overflow-x-hidden">
+<body class="bg-gray-950 text-gray-100 min-h-screen pb-10">
 
-    <div class="fixed inset-0 bg-grid z-0"></div>
-    <div class="fixed inset-0 bg-gradient-to-b from-transparent via-black/50 to-black z-0"></div>
-
-    <div class="relative z-10 max-w-md mx-auto md:max-w-5xl p-4 md:p-8">
-        
-        <header class="flex justify-between items-center mb-8 glass-card p-4 rounded-2xl border-t border-green-500/30">
+    <nav class="border-b border-gray-800 bg-gray-900/80 sticky top-0 z-50 backdrop-blur-md">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <div class="p-2 bg-green-500/10 rounded-lg border border-green-500/30">
-                    <i data-lucide="sprout" class="text-green-400 h-6 w-6"></i>
+                <div class="bg-emerald-500/10 p-2 rounded-lg border border-emerald-500/20">
+                    <i data-lucide="sprout" class="h-5 w-5 text-emerald-500"></i>
                 </div>
                 <div>
-                    <h1 class="font-bold text-lg tracking-wider">Smart Agri <span class="text-green-400">DePIN</span></h1>
-                    <p class="text-[10px] text-gray-400 uppercase tracking-[0.2em]">NodeOps Network</p>
+                    <h1 class="font-bold text-sm sm:text-lg tracking-tight">Smart Agri <span class="text-emerald-500">Dashboard</span></h1>
+                    <p class="text-[10px] text-gray-400">Jatibarang Unit #001</p>
                 </div>
             </div>
-            <div class="flex items-center gap-2">
-                <div class="h-2 w-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_10px_#22c55e]"></div>
-                <span class="text-xs font-mono text-green-400">ONLINE</span>
+            <div id="connection-status" class="flex items-center gap-2 px-3 py-1 bg-gray-800 rounded-full border border-gray-700">
+                <div class="w-2 h-2 bg-yellow-500 rounded-full animate-pulse" id="status-dot"></div>
+                <span class="text-xs font-mono text-gray-300" id="status-text">Waiting for Device...</span>
             </div>
-        </header>
+        </div>
+    </nav>
 
-        <div class="mb-6 relative group overflow-hidden rounded-2xl border border-gray-800 h-48 md:h-64">
-            <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1560493676-04071c5f467b?q=80&w=1000&auto=format&fit=crop')] bg-cover bg-center opacity-60 group-hover:scale-110 transition-transform duration-700"></div>
-            <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+    <main class="max-w-5xl mx-auto px-4 mt-6 space-y-6">
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             
-            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
-                <div class="h-16 w-16 rounded-full border border-green-500/30 animate-ping absolute"></div>
-                <div class="h-4 w-4 bg-green-500 rounded-full shadow-[0_0_20px_#22c55e] z-10"></div>
-                <div class="mt-4 bg-black/80 backdrop-blur px-3 py-1 rounded text-xs border border-green-500/30 text-green-400 font-mono">
-                    LAT: -6.200 | LONG: 106.816
+            <div class="glass rounded-xl p-5 border-t-4 border-emerald-500 relative overflow-hidden group">
+                <div class="absolute right-2 top-2 opacity-10 group-hover:opacity-20 transition-all">
+                    <i data-lucide="droplets" class="h-16 w-16 text-emerald-500"></i>
                 </div>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4 mb-6">
-            <div class="glass-card p-4 rounded-2xl relative overflow-hidden group">
-                <div class="absolute -right-4 -top-4 bg-green-500/10 h-20 w-20 rounded-full blur-2xl group-hover:bg-green-500/20 transition-all"></div>
-                <div class="flex items-center gap-2 mb-2 text-gray-400">
-                    <i data-lucide="droplets" class="h-4 w-4"></i>
-                    <span class="text-xs font-bold uppercase tracking-wider">Moisture</span>
-                </div>
+                <p class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-1">Kelembaban Tanah</p>
                 <div class="flex items-end gap-1">
-                    <span class="text-3xl font-bold text-white glow-text" id="val-moisture">68</span>
-                    <span class="text-sm text-green-400 mb-1">%</span>
+                    <span class="text-4xl font-bold text-white" id="val-moist">--</span>
+                    <span class="text-lg text-emerald-500 mb-1">%</span>
                 </div>
-                <div class="w-full bg-gray-800 h-1 mt-3 rounded-full overflow-hidden">
-                    <div class="bg-gradient-to-r from-green-600 to-green-400 h-full w-[68%] shadow-[0_0_10px_#22c55e]"></div>
+                <div class="mt-3 w-full bg-gray-800 h-1.5 rounded-full overflow-hidden">
+                    <div id="bar-moist" class="bg-emerald-500 h-full w-0 transition-all duration-700"></div>
                 </div>
+                <p class="text-[10px] text-gray-500 mt-2 text-right">Ideal: 60-80%</p>
             </div>
 
-            <div class="glass-card p-4 rounded-2xl relative overflow-hidden group">
-                <div class="absolute -right-4 -top-4 bg-orange-500/10 h-20 w-20 rounded-full blur-2xl group-hover:bg-orange-500/20 transition-all"></div>
-                <div class="flex items-center gap-2 mb-2 text-gray-400">
-                    <i data-lucide="thermometer" class="h-4 w-4"></i>
-                    <span class="text-xs font-bold uppercase tracking-wider">Temp</span>
+            <div class="glass rounded-xl p-5 border-t-4 border-purple-500 relative overflow-hidden group">
+                <div class="absolute right-2 top-2 opacity-10 group-hover:opacity-20 transition-all">
+                    <i data-lucide="flask-conical" class="h-16 w-16 text-purple-500"></i>
                 </div>
+                <p class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-1">pH Tanah</p>
                 <div class="flex items-end gap-1">
-                    <span class="text-3xl font-bold text-white" id="val-temp">27.5</span>
-                    <span class="text-sm text-orange-400 mb-1">°C</span>
+                    <span class="text-4xl font-bold text-white" id="val-ph">--</span>
+                    <span class="text-lg text-purple-500 mb-1">pH</span>
                 </div>
-                 <div class="w-full bg-gray-800 h-1 mt-3 rounded-full overflow-hidden">
-                    <div class="bg-gradient-to-r from-orange-600 to-orange-400 h-full w-[40%]"></div>
+                <div class="mt-3 flex items-center gap-2">
+                    <span id="label-ph" class="text-[10px] px-2 py-0.5 rounded bg-gray-800 text-gray-400 border border-gray-700">Calibrating...</span>
                 </div>
+                <p class="text-[10px] text-gray-500 mt-2 text-right">Ideal: 6.0-7.0</p>
             </div>
 
-            <div class="glass-card p-4 rounded-2xl relative overflow-hidden group">
-                <div class="absolute -right-4 -top-4 bg-purple-500/10 h-20 w-20 rounded-full blur-2xl group-hover:bg-purple-500/20 transition-all"></div>
-                <div class="flex items-center gap-2 mb-2 text-gray-400">
-                    <i data-lucide="flask-conical" class="h-4 w-4"></i>
-                    <span class="text-xs font-bold uppercase tracking-wider">Acidity</span>
-                </div>
-                <div class="flex items-end gap-1">
-                    <span class="text-3xl font-bold text-white" id="val-ph">7.1</span>
-                    <span class="text-sm text-purple-400 mb-1">pH</span>
-                </div>
-            </div>
-
-            <div class="glass-card p-4 rounded-2xl relative overflow-hidden group">
-                <div class="absolute -right-4 -top-4 bg-blue-500/10 h-20 w-20 rounded-full blur-2xl group-hover:bg-blue-500/20 transition-all"></div>
-                <div class="flex items-center gap-2 mb-2 text-gray-400">
-                    <i data-lucide="wifi" class="h-4 w-4"></i>
-                    <span class="text-xs font-bold uppercase tracking-wider">Signal</span>
-                </div>
-                <div class="flex items-end gap-1">
-                    <span class="text-3xl font-bold text-white">42</span>
-                    <span class="text-sm text-blue-400 mb-1">ms</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="glass-card p-6 rounded-2xl border border-green-500/40 relative overflow-hidden">
-            <div class="absolute inset-0 bg-gradient-to-r from-green-500/10 via-transparent to-transparent opacity-50"></div>
-            <div class="relative z-10 flex justify-between items-center">
-                <div>
-                    <p class="text-green-400 text-xs font-bold uppercase tracking-widest mb-1">Total Rewards Mined</p>
-                    <div class="flex items-center gap-2">
-                        <i data-lucide="coins" class="text-yellow-400 h-6 w-6"></i>
-                        <h2 class="text-4xl font-bold text-white glow-text tracking-tighter" id="val-rewards">142.50</h2>
+            <div class="glass rounded-xl p-5 border-t-4 border-blue-500">
+                <p class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-3">Status Perangkat</p>
+                <div class="space-y-3">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-500">Baterai</span>
+                        <span class="text-blue-400 font-mono">82%</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-500">Suhu Alat</span>
+                        <span class="text-orange-400 font-mono" id="val-temp">--°C</span>
+                    </div>
+                    <div class="flex justify-between text-sm border-t border-gray-700 pt-2">
+                        <span class="text-gray-500">Last Sync</span>
+                        <span class="text-gray-300 font-mono text-xs" id="last-sync">--:--:--</span>
                     </div>
                 </div>
-                <div class="h-12 w-12 rounded-full border-2 border-green-500 border-t-transparent animate-spin"></div>
-            </div>
-            <div class="mt-4 pt-4 border-t border-gray-800 flex justify-between items-center">
-                <span class="text-xs text-gray-500 font-mono">Wallet: 0x71...B9a2</span>
-                <span class="text-[10px] bg-green-500/20 text-green-400 px-2 py-1 rounded border border-green-500/30">CONNECTED</span>
             </div>
         </div>
 
-        <div class="mt-8 text-center">
-            <p class="text-[10px] text-gray-600 uppercase tracking-widest">Powered by NodeOps Infrastructure</p>
+        <div class="glass rounded-xl p-5">
+            <h3 class="text-sm font-bold text-gray-200 mb-4 flex items-center gap-2">
+                <i data-lucide="activity" class="h-4 w-4 text-emerald-500"></i>
+                Grafik Live Data (1 Jam Terakhir)
+            </h3>
+            <div class="h-40 flex items-end justify-between gap-1" id="chart-container">
+                </div>
         </div>
 
-    </div>
+        <div class="rounded-xl border border-gray-800 bg-black/40 p-4 font-mono text-xs text-gray-400 h-32 overflow-y-auto" id="system-log">
+            <p>> System initialized...</p>
+            <p>> Connecting to IoT Gateway...</p>
+        </div>
+
+    </main>
 
     <script>
         lucide.createIcons();
 
-        // Data Simulation
+        // ==========================================
+        // CONFIG AREA (Tempat menaruh Kunci Database nanti)
+        // ==========================================
+        const IOT_CONFIG = {
+            useRealData: false, // Ubah ke 'true' jika alat sudah siap
+            firebaseUrl: "",    // Nanti diisi URL Firebase
+            deviceId: "ESP32-JATIBARANG-01"
+        };
+
+        // ==========================================
+        // SIMULATION LOGIC (Sementara, sebelum ada alat)
+        // ==========================================
+        
+        function addLog(msg) {
+            const logBox = document.getElementById('system-log');
+            const time = new Date().toLocaleTimeString('id-ID');
+            logBox.innerHTML += `<p class="border-l-2 border-emerald-500 pl-2 mb-1"><span class="text-gray-600">[${time}]</span> ${msg}</p>`;
+            logBox.scrollTop = logBox.scrollHeight;
+        }
+
+        function updateDisplay(data) {
+            // Update Angka
+            document.getElementById('val-moist').innerText = data.moist;
+            document.getElementById('bar-moist').style.width = data.moist + '%';
+            document.getElementById('val-ph').innerText = data.ph;
+            document.getElementById('val-temp').innerText = data.temp + '°C';
+            
+            // Update Label pH
+            const phLabel = document.getElementById('label-ph');
+            if(data.ph < 6) { 
+                phLabel.innerText = "Terlalu Asam"; 
+                phLabel.className = "text-[10px] px-2 py-0.5 rounded bg-red-900/30 text-red-400 border border-red-500/30";
+            } else if (data.ph > 7.5) {
+                phLabel.innerText = "Terlalu Basa";
+                phLabel.className = "text-[10px] px-2 py-0.5 rounded bg-blue-900/30 text-blue-400 border border-blue-500/30";
+            } else {
+                phLabel.innerText = "Netral (Optimal)";
+                phLabel.className = "text-[10px] px-2 py-0.5 rounded bg-emerald-900/30 text-emerald-400 border border-emerald-500/30";
+            }
+
+            // Update Waktu
+            document.getElementById('last-sync').innerText = new Date().toLocaleTimeString();
+            
+            // Update Status
+            document.getElementById('status-text').innerText = "Device Connected";
+            document.getElementById('status-text').className = "text-xs font-mono text-emerald-400";
+            document.getElementById('status-dot').className = "w-2 h-2 bg-emerald-500 rounded-full animate-pulse";
+        }
+
+        // Jalankan Simulasi
+        if (!IOT_CONFIG.useRealData) {
+            setTimeout(() => {
+                addLog("Simulating connection to " + IOT_CONFIG.deviceId);
+                
+                setInterval(() => {
+                    // Buat data acak yang masuk akal
+                    const fakeData = {
+                        moist: (60 + Math.random() * 10).toFixed(0), // 60-70%
+                        ph: (6.5 + Math.random() * 0.5 - 0.25).toFixed(1), // 6.2 - 6.8
+                        temp: (26 + Math.random()).toFixed(1)
+                    };
+                    
+                    updateDisplay(fakeData);
+                    
+                    // Random log event
+                    if(Math.random() > 0.7) addLog("Received data packet (48 bytes)");
+                    
+                }, 3000); // Update tiap 3 detik
+            }, 1000);
+        }
+
+        // Chart Builder
+        const chartContainer = document.getElementById('chart-container');
+        for(let i=0; i<30; i++) {
+            let div = document.createElement('div');
+            div.className = "flex-1 bg-emerald-500/10 border-t border-emerald-500/40 rounded-t-sm transition-all duration-500";
+            div.style.height = (20 + Math.random() * 60) + "%";
+            chartContainer.appendChild(div);
+        }
         setInterval(() => {
-            // Moisture
-            document.getElementById('val-moisture').innerText = (65 + Math.random() * 5).toFixed(0);
-            
-            // Temp
-            document.getElementById('val-temp').innerText = (26 + Math.random() * 2).toFixed(1);
-            
-            // Rewards (Mining effect)
-            let reward = parseFloat(document.getElementById('val-rewards').innerText);
-            document.getElementById('val-rewards').innerText = (reward + 0.005).toFixed(3);
+            Array.from(chartContainer.children).forEach(bar => {
+                bar.style.height = (20 + Math.random() * 60) + "%";
+            });
         }, 3000);
+
     </script>
 </body>
 </html>
+      

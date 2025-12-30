@@ -202,59 +202,78 @@
         .dark-mode-icon {
             color: #1e40af;
         }
+
+        /* Watermark Style */
+        .watermark {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0.03;
+            z-index: -1;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .watermark-text {
+            font-size: 12rem;
+            font-weight: 900;
+            white-space: nowrap;
+            color: var(--primary-color);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* Minimal Header */
+        .minimal-header {
+            padding: 8px 20px;
+            height: 60px;
+        }
     </style>
 </head>
 <body class="dark-mode">
     
-    <!-- Header -->
-    <header class="border-b border-gray-300 dark:border-gray-800 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm sticky top-0 z-50 transition-colors duration-300">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
-                <div class="flex items-center gap-3">
-                    <div class="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl shadow-lg">
-                        <i class="fas fa-seedling text-white text-2xl"></i>
-                    </div>
-                    <div>
-                        <h1 class="text-2xl font-bold bg-gradient-to-r from-green-400 to-emerald-300 bg-clip-text text-transparent">
-                            SmartAgri IoT
-                        </h1>
-                        <p class="text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300">Monitoring Kelembaban & pH Tanah Sawah</p>
-                    </div>
-                </div>
-                
-                <div class="flex items-center gap-4">
-                    <!-- Theme Toggle -->
-                    <div class="flex items-center gap-2">
-                        <i class="fas fa-sun light-mode-icon"></i>
-                        <label class="theme-toggle">
-                            <input type="checkbox" id="theme-toggle">
-                            <span class="toggle-slider"></span>
-                        </label>
-                        <i class="fas fa-moon dark-mode-icon"></i>
-                    </div>
+    <!-- Watermark -->
+    <div class="watermark">
+        <div class="watermark-text">SmartAgri</div>
+    </div>
 
-                    <div id="connection-status" class="flex items-center gap-2 px-4 py-2 rounded-full status-offline">
-                        <div class="w-3 h-3 rounded-full bg-red-500 pulse-dot"></div>
-                        <span class="text-sm font-medium">Device Offline</span>
-                    </div>
-                    
-                    <div class="hidden md:flex items-center gap-3">
-                        <div class="text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300">
-                            <i class="fas fa-microchip mr-1"></i>
-                            <span class="font-mono">ESP32-001</span>
-                        </div>
-                        <div class="text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300">
-                            <i class="fas fa-map-marker-alt mr-1"></i>
-                            <span>Jatibarang Unit</span>
-                        </div>
-                    </div>
+    <!-- Minimal Header -->
+    <header class="border-b border-gray-300 dark:border-gray-800 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm sticky top-0 z-50 transition-colors duration-300 minimal-header">
+        <div class="max-w-7xl mx-auto h-full flex items-center justify-between">
+            <!-- Left: Connection Status Badge -->
+            <div id="connection-status" class="flex items-center gap-2 px-3 py-1.5 rounded-full status-offline">
+                <div class="w-2 h-2 rounded-full bg-red-500 pulse-dot"></div>
+                <span class="text-xs font-medium">Offline</span>
+            </div>
+            
+            <!-- Center: Device Info (Hidden on mobile) -->
+            <div class="hidden md:flex items-center gap-4 text-xs text-gray-600 dark:text-gray-400">
+                <div class="flex items-center gap-1">
+                    <i class="fas fa-microchip"></i>
+                    <span class="font-mono">ESP32-001</span>
+                </div>
+                <div class="flex items-center gap-1">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>Jatibarang</span>
+                </div>
+            </div>
+            
+            <!-- Right: Theme Toggle Only -->
+            <div class="flex items-center gap-2">
+                <label class="theme-toggle" title="Toggle Dark/Light Mode">
+                    <input type="checkbox" id="theme-toggle">
+                    <span class="toggle-slider"></span>
+                </label>
+                <div class="hidden sm:flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400">
+                    <i class="fas fa-sun light-mode-icon text-xs"></i>
+                    <i class="fas fa-moon dark-mode-icon text-xs ml-1"></i>
                 </div>
             </div>
         </div>
     </header>
     
     <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         
         <!-- Alert Banner -->
         <div id="alert-banner" class="hidden glass-card mb-6 p-4 border-l-4 border-yellow-500">
@@ -272,6 +291,14 @@
             </div>
         </div>
         
+        <!-- Page Title -->
+        <div class="mb-6 text-center">
+            <h1 class="text-2xl font-bold bg-gradient-to-r from-green-500 to-emerald-400 bg-clip-text text-transparent">
+                SmartAgri IoT Dashboard
+            </h1>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Real-time Monitoring Kelembaban & pH Tanah Sawah</p>
+        </div>
+        
         <!-- Stats Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             
@@ -279,7 +306,7 @@
             <div class="glass-card sensor-card p-5">
                 <div class="flex justify-between items-start mb-4">
                     <div>
-                        <p class="text-gray-600 dark:text-gray-400 text-sm font-semibold uppercase tracking-wider mb-1 transition-colors duration-300">
+                        <p class="text-gray-600 dark:text-gray-400 text-sm font-semibold uppercase tracking-wider mb-1">
                             <i class="fas fa-tint mr-2 text-blue-500"></i>Kelembaban Tanah
                         </p>
                         <div class="flex items-baseline mt-2">
@@ -593,37 +620,16 @@
         </div>
     </main>
     
-    <!-- Footer -->
-    <footer class="mt-8 pt-6 pb-8 border-t border-gray-300 dark:border-gray-800 transition-colors duration-300">
+    <!-- Minimal Footer -->
+    <footer class="mt-8 pt-4 pb-4">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-                <div class="text-center md:text-left">
-                    <p class="text-lg font-bold bg-gradient-to-r from-green-400 to-emerald-300 bg-clip-text text-transparent">
-                        SmartAgri IoT Dashboard
-                    </p>
-                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1 transition-colors duration-300">Monitoring Sistem Pertanian Berbasis IoT</p>
-                </div>
-                
-                <div class="flex gap-4">
-                    <a href="#" class="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white transition-colors duration-300">
-                        <i class="fab fa-github text-xl"></i>
-                    </a>
-                    <a href="#" class="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white transition-colors duration-300">
-                        <i class="fab fa-twitter text-xl"></i>
-                    </a>
-                    <a href="#" class="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white transition-colors duration-300">
-                        <i class="fab fa-youtube text-xl"></i>
-                    </a>
-                </div>
-                
-                <div class="text-center md:text-right">
-                    <p class="text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300">
-                        © 2024 SmartAgri Team. All rights reserved.
-                    </p>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 transition-colors duration-300">
-                        Version 1.0.0 | Theme: <span id="theme-indicator">Dark</span>
-                    </p>
-                </div>
+            <div class="flex flex-col items-center text-center">
+                <p class="text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300">
+                    © 2026 SmartAgri IoT Monitoring System
+                </p>
+                <p class="text-xs text-gray-500 dark:text-gray-500 mt-1 transition-colors duration-300">
+                    Version 1.0.0 • Jatibarang Unit • Powered by ESP32
+                </p>
             </div>
         </div>
     </footer>
@@ -699,12 +705,10 @@
                 document.body.classList.remove('dark-mode');
                 themeToggle.checked = false;
                 CONFIG.theme = 'light';
-                updateThemeIndicator('light');
             } else {
                 document.body.classList.add('dark-mode');
                 themeToggle.checked = true;
                 CONFIG.theme = 'dark';
-                updateThemeIndicator('dark');
             }
             
             // Setup event listener untuk toggle
@@ -719,25 +723,17 @@
                 document.body.classList.add('dark-mode');
                 CONFIG.theme = 'dark';
                 localStorage.setItem('smartagri-theme', 'dark');
-                updateThemeIndicator('dark');
                 addSystemLog('Theme diubah ke Dark Mode', 'info');
             } else {
                 // Switch to light mode
                 document.body.classList.remove('dark-mode');
                 CONFIG.theme = 'light';
                 localStorage.setItem('smartagri-theme', 'light');
-                updateThemeIndicator('light');
                 addSystemLog('Theme diubah ke Light Mode', 'info');
             }
             
             // Update charts untuk tema baru
             updateChartsTheme();
-        }
-
-        function updateThemeIndicator(theme) {
-            const indicator = document.getElementById('theme-indicator');
-            indicator.textContent = theme === 'dark' ? 'Dark' : 'Light';
-            indicator.className = theme === 'dark' ? 'text-purple-500' : 'text-yellow-500';
         }
 
         function updateChartsTheme() {
@@ -1009,6 +1005,9 @@
             
             // Update WiFi bars
             updateWiFiBars(wifiStrength);
+            
+            // Update connection status
+            updateConnectionStatus(true);
         }
 
         function updatePHStatus(ph) {
@@ -1245,23 +1244,21 @@
             isConnected = connected;
             
             if (connected) {
-                statusElement.className = 'flex items-center gap-2 px-4 py-2 rounded-full status-online';
+                statusElement.className = 'flex items-center gap-2 px-3 py-1.5 rounded-full status-online';
                 statusElement.innerHTML = `
-                    <div class="w-3 h-3 rounded-full bg-green-500 pulse-dot"></div>
-                    <span class="text-sm font-medium">Device Online</span>
+                    <div class="w-2 h-2 rounded-full bg-green-500 pulse-dot"></div>
+                    <span class="text-xs font-medium">Online</span>
                 `;
                 deviceStatus.textContent = 'ONLINE';
                 deviceStatus.className = 'text-2xl font-bold text-green-500';
-                addSystemLog('Perangkat IoT terhubung', 'success');
             } else {
-                statusElement.className = 'flex items-center gap-2 px-4 py-2 rounded-full status-offline';
+                statusElement.className = 'flex items-center gap-2 px-3 py-1.5 rounded-full status-offline';
                 statusElement.innerHTML = `
-                    <div class="w-3 h-3 rounded-full bg-red-500 pulse-dot"></div>
-                    <span class="text-sm font-medium">Device Offline</span>
+                    <div class="w-2 h-2 rounded-full bg-red-500 pulse-dot"></div>
+                    <span class="text-xs font-medium">Offline</span>
                 `;
                 deviceStatus.textContent = 'OFFLINE';
                 deviceStatus.className = 'text-2xl font-bold text-red-500';
-                addSystemLog('Perangkat IoT terputus', 'error');
             }
         }
 

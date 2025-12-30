@@ -18,6 +18,28 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
+        :root {
+            --primary-color: #3b82f6;
+            --secondary-color: #10b981;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --background-color: #ffffff;
+            --card-background: #f8fafc;
+            --text-color: #1e293b;
+            --border-color: #e2e8f0;
+        }
+
+        .dark-mode {
+            --primary-color: #60a5fa;
+            --secondary-color: #34d399;
+            --danger-color: #f87171;
+            --warning-color: #fbbf24;
+            --background-color: #0f172a;
+            --card-background: #1e293b;
+            --text-color: #f1f5f9;
+            --border-color: #334155;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -26,16 +48,17 @@
         }
         
         body {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            color: #f8fafc;
+            background-color: var(--background-color);
+            color: var(--text-color);
             min-height: 100vh;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
         
         .glass-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: var(--card-background);
+            border: 1px solid var(--border-color);
             border-radius: 16px;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
         }
         
         .status-online {
@@ -75,7 +98,7 @@
         }
         
         ::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(0, 0, 0, 0.05);
             border-radius: 4px;
         }
         
@@ -87,6 +110,10 @@
         ::-webkit-scrollbar-thumb:hover {
             background: rgba(34, 197, 94, 0.8);
         }
+
+        .dark-mode ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
         
         /* Progress Bar Animation */
         .progress-bar {
@@ -97,6 +124,10 @@
         .sensor-card:hover {
             transform: translateY(-5px);
             transition: transform 0.3s ease;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .dark-mode .sensor-card:hover {
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
         }
         
@@ -117,12 +148,66 @@
                 grid-template-columns: 1fr !important;
             }
         }
+
+        /* Toggle Switch */
+        .theme-toggle {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+        }
+
+        .theme-toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #1e293b;
+            border-radius: 34px;
+            transition: .4s;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            border-radius: 50%;
+            transition: .4s;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: #fbbf24;
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(30px);
+        }
+
+        .light-mode-icon {
+            color: #fbbf24;
+        }
+
+        .dark-mode-icon {
+            color: #1e40af;
+        }
     </style>
 </head>
-<body class="min-h-screen">
+<body class="dark-mode">
     
     <!-- Header -->
-    <header class="border-b border-gray-800 bg-gray-900/90 backdrop-blur-sm sticky top-0 z-50">
+    <header class="border-b border-gray-300 dark:border-gray-800 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm sticky top-0 z-50 transition-colors duration-300">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
                 <div class="flex items-center gap-3">
@@ -133,22 +218,32 @@
                         <h1 class="text-2xl font-bold bg-gradient-to-r from-green-400 to-emerald-300 bg-clip-text text-transparent">
                             SmartAgri IoT
                         </h1>
-                        <p class="text-sm text-gray-400">Monitoring Kelembaban & pH Tanah Sawah</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300">Monitoring Kelembaban & pH Tanah Sawah</p>
                     </div>
                 </div>
                 
                 <div class="flex items-center gap-4">
+                    <!-- Theme Toggle -->
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-sun light-mode-icon"></i>
+                        <label class="theme-toggle">
+                            <input type="checkbox" id="theme-toggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <i class="fas fa-moon dark-mode-icon"></i>
+                    </div>
+
                     <div id="connection-status" class="flex items-center gap-2 px-4 py-2 rounded-full status-offline">
                         <div class="w-3 h-3 rounded-full bg-red-500 pulse-dot"></div>
                         <span class="text-sm font-medium">Device Offline</span>
                     </div>
                     
                     <div class="hidden md:flex items-center gap-3">
-                        <div class="text-sm text-gray-400">
+                        <div class="text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300">
                             <i class="fas fa-microchip mr-1"></i>
                             <span class="font-mono">ESP32-001</span>
                         </div>
-                        <div class="text-sm text-gray-400">
+                        <div class="text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300">
                             <i class="fas fa-map-marker-alt mr-1"></i>
                             <span>Jatibarang Unit</span>
                         </div>
@@ -168,10 +263,10 @@
                     <i class="fas fa-exclamation-triangle text-yellow-500 text-xl"></i>
                     <div>
                         <p class="font-medium" id="alert-message"></p>
-                        <p class="text-sm text-gray-400" id="alert-time"></p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 transition-colors duration-300" id="alert-time"></p>
                     </div>
                 </div>
-                <button onclick="dismissAlert()" class="text-gray-400 hover:text-white">
+                <button onclick="dismissAlert()" class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white transition-colors duration-300">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
@@ -184,14 +279,14 @@
             <div class="glass-card sensor-card p-5">
                 <div class="flex justify-between items-start mb-4">
                     <div>
-                        <p class="text-gray-400 text-sm font-semibold uppercase tracking-wider mb-1">
-                            <i class="fas fa-tint mr-2 text-blue-400"></i>Kelembaban Tanah
+                        <p class="text-gray-600 dark:text-gray-400 text-sm font-semibold uppercase tracking-wider mb-1 transition-colors duration-300">
+                            <i class="fas fa-tint mr-2 text-blue-500"></i>Kelembaban Tanah
                         </p>
                         <div class="flex items-baseline mt-2">
                             <span id="moisture-value" class="text-4xl font-bold">--</span>
-                            <span class="text-xl text-blue-400 ml-2">%</span>
+                            <span class="text-xl text-blue-500 ml-2">%</span>
                         </div>
-                        <p class="text-xs text-gray-500 mt-1">Sensor: Capacitive V2.0</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 transition-colors duration-300">Sensor: Capacitive V2.0</p>
                     </div>
                     <div class="p-3 bg-blue-500/10 rounded-lg">
                         <i class="fas fa-water text-blue-500 text-xl"></i>
@@ -199,17 +294,17 @@
                 </div>
                 
                 <div class="mt-4">
-                    <div class="flex justify-between text-xs text-gray-400 mb-1">
+                    <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1 transition-colors duration-300">
                         <span>Kering (0-40%)</span>
-                        <span class="text-green-400">Ideal (60-80%)</span>
+                        <span class="text-green-500">Ideal (60-80%)</span>
                         <span>Basah (80-100%)</span>
                     </div>
-                    <div class="h-2 bg-gray-800 rounded-full overflow-hidden">
+                    <div class="h-2 bg-gray-300 dark:bg-gray-700 rounded-full overflow-hidden transition-colors duration-300">
                         <div id="moisture-bar" class="h-full bg-gradient-to-r from-red-500 via-green-500 to-blue-500 progress-bar" style="width: 0%"></div>
                     </div>
                     <div class="flex justify-between mt-2">
-                        <span id="moisture-status" class="text-xs px-2 py-1 rounded bg-gray-800 text-gray-400">Mengukur...</span>
-                        <span id="moisture-time" class="text-xs text-gray-500">--:--:--</span>
+                        <span id="moisture-status" class="text-xs px-2 py-1 rounded bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 transition-colors duration-300">Mengukur...</span>
+                        <span id="moisture-time" class="text-xs text-gray-500 dark:text-gray-400 transition-colors duration-300">--:--:--</span>
                     </div>
                 </div>
             </div>
@@ -218,14 +313,14 @@
             <div class="glass-card sensor-card p-5">
                 <div class="flex justify-between items-start mb-4">
                     <div>
-                        <p class="text-gray-400 text-sm font-semibold uppercase tracking-wider mb-1">
-                            <i class="fas fa-flask mr-2 text-purple-400"></i>pH Tanah
+                        <p class="text-gray-600 dark:text-gray-400 text-sm font-semibold uppercase tracking-wider mb-1 transition-colors duration-300">
+                            <i class="fas fa-flask mr-2 text-purple-500"></i>pH Tanah
                         </p>
                         <div class="flex items-baseline mt-2">
                             <span id="ph-value" class="text-4xl font-bold">--</span>
-                            <span class="text-xl text-purple-400 ml-2">pH</span>
+                            <span class="text-xl text-purple-500 ml-2">pH</span>
                         </div>
-                        <p class="text-xs text-gray-500 mt-1">Sensor: PH-4502C</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 transition-colors duration-300">Sensor: PH-4502C</p>
                     </div>
                     <div class="p-3 bg-purple-500/10 rounded-lg">
                         <i class="fas fa-vial text-purple-500 text-xl"></i>
@@ -234,13 +329,13 @@
                 
                 <div class="mt-4">
                     <div id="ph-indicator" class="text-sm mb-3">
-                        <span id="ph-status" class="px-3 py-1.5 rounded-full bg-gray-800 text-gray-400">Kalibrasi...</span>
+                        <span id="ph-status" class="px-3 py-1.5 rounded-full bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 transition-colors duration-300">Kalibrasi...</span>
                     </div>
                     <div class="flex items-center justify-between">
-                        <div class="text-xs text-gray-400">
-                            Ideal untuk padi: <span class="text-green-400">6.0 - 7.0</span>
+                        <div class="text-xs text-gray-500 dark:text-gray-400 transition-colors duration-300">
+                            Ideal untuk padi: <span class="text-green-500">6.0 - 7.0</span>
                         </div>
-                        <div class="text-xs text-gray-500" id="ph-time">--:--:--</div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400 transition-colors duration-300" id="ph-time">--:--:--</div>
                     </div>
                 </div>
             </div>
@@ -249,14 +344,14 @@
             <div class="glass-card sensor-card p-5">
                 <div class="flex justify-between items-start mb-4">
                     <div>
-                        <p class="text-gray-400 text-sm font-semibold uppercase tracking-wider mb-1">
-                            <i class="fas fa-thermometer-half mr-2 text-orange-400"></i>Suhu Lingkungan
+                        <p class="text-gray-600 dark:text-gray-400 text-sm font-semibold uppercase tracking-wider mb-1 transition-colors duration-300">
+                            <i class="fas fa-thermometer-half mr-2 text-orange-500"></i>Suhu Lingkungan
                         </p>
                         <div class="flex items-baseline mt-2">
                             <span id="temperature-value" class="text-4xl font-bold">--</span>
-                            <span class="text-xl text-orange-400 ml-2">°C</span>
+                            <span class="text-xl text-orange-500 ml-2">°C</span>
                         </div>
-                        <p class="text-xs text-gray-500 mt-1">Sensor: DHT22</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 transition-colors duration-300">Sensor: DHT22</p>
                     </div>
                     <div class="p-3 bg-orange-500/10 rounded-lg">
                         <i class="fas fa-temperature-high text-orange-500 text-xl"></i>
@@ -266,12 +361,12 @@
                 <div class="mt-4">
                     <div class="flex items-center justify-between mb-2">
                         <span id="temp-feel" class="text-sm">Terasa: --</span>
-                        <span id="temp-time" class="text-xs text-gray-500">--:--:--</span>
+                        <span id="temp-time" class="text-xs text-gray-500 dark:text-gray-400 transition-colors duration-300">--:--:--</span>
                     </div>
-                    <div class="h-2 bg-gray-800 rounded-full overflow-hidden">
+                    <div class="h-2 bg-gray-300 dark:bg-gray-700 rounded-full overflow-hidden transition-colors duration-300">
                         <div id="temp-bar" class="h-full bg-gradient-to-r from-blue-500 via-yellow-500 to-red-500 progress-bar" style="width: 0%"></div>
                     </div>
-                    <div class="flex justify-between text-xs text-gray-400 mt-1">
+                    <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1 transition-colors duration-300">
                         <span>Dingin</span>
                         <span>Nyaman</span>
                         <span>Panas</span>
@@ -283,12 +378,12 @@
             <div class="glass-card p-5">
                 <div class="flex justify-between items-start mb-4">
                     <div>
-                        <p class="text-gray-400 text-sm font-semibold uppercase tracking-wider mb-1">
-                            <i class="fas fa-microchip mr-2 text-cyan-400"></i>Status Perangkat
+                        <p class="text-gray-600 dark:text-gray-400 text-sm font-semibold uppercase tracking-wider mb-1 transition-colors duration-300">
+                            <i class="fas fa-microchip mr-2 text-cyan-500"></i>Status Perangkat
                         </p>
                         <div class="mt-2">
                             <p class="text-2xl font-bold" id="device-status">OFFLINE</p>
-                            <p class="text-xs text-gray-500">ESP32 SmartAgri v1.0</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 transition-colors duration-300">ESP32 SmartAgri v1.0</p>
                         </div>
                     </div>
                     <div class="p-3 bg-cyan-500/10 rounded-lg">
@@ -298,9 +393,9 @@
                 
                 <div class="space-y-3">
                     <div class="flex justify-between items-center">
-                        <span class="text-sm text-gray-400">Baterai</span>
+                        <span class="text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300">Baterai</span>
                         <div class="flex items-center gap-2">
-                            <div class="w-16 h-2 bg-gray-800 rounded-full overflow-hidden">
+                            <div class="w-16 h-2 bg-gray-300 dark:bg-gray-700 rounded-full overflow-hidden transition-colors duration-300">
                                 <div id="battery-bar" class="h-full bg-green-500 progress-bar" style="width: 0%"></div>
                             </div>
                             <span id="battery-value" class="text-sm font-mono">--%</span>
@@ -308,26 +403,26 @@
                     </div>
                     
                     <div class="flex justify-between items-center">
-                        <span class="text-sm text-gray-400">Sinyal WiFi</span>
+                        <span class="text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300">Sinyal WiFi</span>
                         <div class="flex items-center gap-2">
                             <div class="flex gap-1">
-                                <div class="w-2 h-2 bg-gray-700 rounded-full bar-1"></div>
-                                <div class="w-2 h-2 bg-gray-700 rounded-full bar-2"></div>
-                                <div class="w-2 h-2 bg-gray-700 rounded-full bar-3"></div>
-                                <div class="w-2 h-2 bg-gray-700 rounded-full bar-4"></div>
+                                <div class="w-2 h-2 bg-gray-400 dark:bg-gray-600 rounded-full bar-1"></div>
+                                <div class="w-2 h-2 bg-gray-400 dark:bg-gray-600 rounded-full bar-2"></div>
+                                <div class="w-2 h-2 bg-gray-400 dark:bg-gray-600 rounded-full bar-3"></div>
+                                <div class="w-2 h-2 bg-gray-400 dark:bg-gray-600 rounded-full bar-4"></div>
                             </div>
                             <span id="wifi-strength" class="text-sm font-mono">-- dBm</span>
                         </div>
                     </div>
                     
-                    <div class="pt-3 border-t border-gray-800">
+                    <div class="pt-3 border-t border-gray-300 dark:border-gray-700 transition-colors duration-300">
                         <div class="flex justify-between text-sm">
-                            <span class="text-gray-400">Update Terakhir:</span>
+                            <span class="text-gray-600 dark:text-gray-400 transition-colors duration-300">Update Terakhir:</span>
                             <span id="last-update" class="font-mono">--:--:--</span>
                         </div>
                         <div class="flex justify-between text-sm mt-1">
-                            <span class="text-gray-400">Paket Data:</span>
-                            <span id="packet-count" class="font-mono text-green-400">0</span>
+                            <span class="text-gray-600 dark:text-gray-400 transition-colors duration-300">Paket Data:</span>
+                            <span id="packet-count" class="font-mono text-green-500">0</span>
                         </div>
                     </div>
                 </div>
@@ -339,18 +434,18 @@
             <!-- Chart Kelembaban -->
             <div class="glass-card p-5">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
-                    <h3 class="text-lg font-semibold flex items-center gap-2">
+                    <h3 class="text-lg font-semibold flex items-center gap-2 text-gray-800 dark:text-gray-200 transition-colors duration-300">
                         <i class="fas fa-chart-line text-green-500"></i>
                         Trend Kelembaban (60 Menit Terakhir)
                     </h3>
                     <div class="flex gap-2">
-                        <button onclick="changeChartRange('1h')" class="text-xs px-3 py-1.5 bg-green-500/20 text-green-400 rounded-lg hover:bg-green-500/30">
+                        <button onclick="changeChartRange('1h')" class="text-xs px-3 py-1.5 bg-green-500/20 text-green-600 dark:text-green-400 border border-green-500/30 rounded-lg hover:bg-green-500/30 transition-colors duration-300">
                             1 Jam
                         </button>
-                        <button onclick="changeChartRange('6h')" class="text-xs px-3 py-1.5 bg-gray-800 rounded-lg hover:bg-gray-700">
+                        <button onclick="changeChartRange('6h')" class="text-xs px-3 py-1.5 bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors duration-300">
                             6 Jam
                         </button>
-                        <button onclick="changeChartRange('24h')" class="text-xs px-3 py-1.5 bg-gray-800 rounded-lg hover:bg-gray-700">
+                        <button onclick="changeChartRange('24h')" class="text-xs px-3 py-1.5 bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors duration-300">
                             24 Jam
                         </button>
                     </div>
@@ -363,15 +458,15 @@
             <!-- Chart pH -->
             <div class="glass-card p-5">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
-                    <h3 class="text-lg font-semibold flex items-center gap-2">
+                    <h3 class="text-lg font-semibold flex items-center gap-2 text-gray-800 dark:text-gray-200 transition-colors duration-300">
                         <i class="fas fa-chart-bar text-purple-500"></i>
                         Trend pH Tanah (60 Menit Terakhir)
                     </h3>
                     <div class="flex items-center gap-3">
-                        <div class="text-sm text-gray-400">
-                            Rata-rata: <span id="ph-average" class="font-bold text-purple-400">--</span>
+                        <div class="text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300">
+                            Rata-rata: <span id="ph-average" class="font-bold text-purple-500">--</span>
                         </div>
-                        <button onclick="exportChartData()" class="text-xs px-3 py-1.5 bg-gray-800 rounded-lg hover:bg-gray-700 flex items-center gap-1">
+                        <button onclick="exportChartData()" class="text-xs px-3 py-1.5 bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors duration-300 flex items-center gap-1">
                             <i class="fas fa-download"></i> Export
                         </button>
                     </div>
@@ -387,50 +482,50 @@
             <!-- System Log -->
             <div class="glass-card p-5 lg:col-span-2">
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-semibold flex items-center gap-2">
+                    <h3 class="text-lg font-semibold flex items-center gap-2 text-gray-800 dark:text-gray-200 transition-colors duration-300">
                         <i class="fas fa-terminal text-blue-500"></i>
                         System Log
                     </h3>
                     <div class="flex gap-2">
-                        <button onclick="toggleAutoScroll()" id="auto-scroll-btn" class="text-xs px-3 py-1.5 bg-blue-500/20 text-blue-400 rounded-lg">
+                        <button onclick="toggleAutoScroll()" id="auto-scroll-btn" class="text-xs px-3 py-1.5 bg-blue-500/20 text-blue-600 dark:text-blue-400 border border-blue-500/30 rounded-lg hover:bg-blue-500/30 transition-colors duration-300">
                             <i class="fas fa-sync mr-1"></i> Auto-scroll: ON
                         </button>
-                        <button onclick="clearLogs()" class="text-xs px-3 py-1.5 bg-gray-800 rounded-lg hover:bg-gray-700">
+                        <button onclick="clearLogs()" class="text-xs px-3 py-1.5 bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors duration-300">
                             <i class="fas fa-trash mr-1"></i> Clear
                         </button>
                     </div>
                 </div>
                 
-                <div id="system-log" class="bg-gray-900/50 border border-gray-800 rounded-lg p-4 h-64 overflow-y-auto font-mono text-sm">
-                    <div class="text-gray-500 mb-2">[12:00:00] Sistem SmartAgri IoT dimulai...</div>
+                <div id="system-log" class="bg-gray-100 dark:bg-gray-900/50 border border-gray-300 dark:border-gray-800 rounded-lg p-4 h-64 overflow-y-auto font-mono text-sm transition-colors duration-300">
+                    <div class="text-gray-500 dark:text-gray-400 mb-2">[12:00:00] Sistem SmartAgri IoT dimulai...</div>
                     <div class="text-blue-500 mb-2">[12:00:01] Inisialisasi dashboard monitoring</div>
                     <div class="text-yellow-500 mb-2">[12:00:02] Mencari perangkat IoT...</div>
-                    <div class="text-gray-500">[12:00:03] Mode simulasi diaktifkan</div>
+                    <div class="text-gray-500 dark:text-gray-400">[12:00:03] Mode simulasi diaktifkan</div>
                 </div>
                 
                 <div class="flex gap-4 mt-3 text-xs">
                     <div class="flex items-center gap-2">
                         <div class="w-2 h-2 rounded-full bg-blue-500"></div>
-                        <span class="text-gray-400">INFO</span>
+                        <span class="text-gray-600 dark:text-gray-400 transition-colors duration-300">INFO</span>
                     </div>
                     <div class="flex items-center gap-2">
                         <div class="w-2 h-2 rounded-full bg-yellow-500"></div>
-                        <span class="text-gray-400">WARNING</span>
+                        <span class="text-gray-600 dark:text-gray-400 transition-colors duration-300">WARNING</span>
                     </div>
                     <div class="flex items-center gap-2">
                         <div class="w-2 h-2 rounded-full bg-red-500"></div>
-                        <span class="text-gray-400">ERROR</span>
+                        <span class="text-gray-600 dark:text-gray-400 transition-colors duration-300">ERROR</span>
                     </div>
                     <div class="flex items-center gap-2">
                         <div class="w-2 h-2 rounded-full bg-green-500"></div>
-                        <span class="text-gray-400">SUCCESS</span>
+                        <span class="text-gray-600 dark:text-gray-400 transition-colors duration-300">SUCCESS</span>
                     </div>
                 </div>
             </div>
             
             <!-- Device Controls -->
             <div class="glass-card p-5">
-                <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                <h3 class="text-lg font-semibold mb-4 flex items-center gap-2 text-gray-800 dark:text-gray-200 transition-colors duration-300">
                     <i class="fas fa-sliders-h text-orange-500"></i>
                     Kontrol Perangkat
                 </h3>
@@ -438,15 +533,15 @@
                 <div class="space-y-4">
                     <!-- Sampling Rate -->
                     <div>
-                        <label class="block text-sm text-gray-400 mb-2">
+                        <label class="block text-sm text-gray-600 dark:text-gray-400 mb-2 transition-colors duration-300">
                             <i class="fas fa-clock mr-2"></i>Interval Sampling
                         </label>
                         <div class="flex items-center gap-3">
                             <input type="range" id="sampling-slider" min="1" max="60" value="5" 
-                                   class="flex-1 h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                                   class="flex-1 h-2 bg-gray-300 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer transition-colors duration-300">
                             <span id="sampling-value" class="text-sm font-mono w-12">5s</span>
                         </div>
-                        <div class="flex justify-between text-xs text-gray-500 mt-1">
+                        <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1 transition-colors duration-300">
                             <span>1 detik</span>
                             <span>30 detik</span>
                             <span>60 detik</span>
@@ -455,41 +550,41 @@
                     
                     <!-- Action Buttons -->
                     <div class="grid grid-cols-2 gap-2">
-                        <button onclick="calibrateSensors()" class="py-3 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-lg hover:bg-blue-500/30 transition flex items-center justify-center gap-2">
+                        <button onclick="calibrateSensors()" class="py-3 bg-blue-500/20 text-blue-600 dark:text-blue-400 border border-blue-500/30 rounded-lg hover:bg-blue-500/30 transition flex items-center justify-center gap-2 transition-colors duration-300">
                             <i class="fas fa-wrench"></i>
                             <span>Kalibrasi</span>
                         </button>
-                        <button onclick="resetDevice()" class="py-3 bg-gray-800 text-gray-300 rounded-lg hover:bg-gray-700 transition flex items-center justify-center gap-2">
+                        <button onclick="resetDevice()" class="py-3 bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-700 transition flex items-center justify-center gap-2 transition-colors duration-300">
                             <i class="fas fa-redo"></i>
                             <span>Reset</span>
                         </button>
-                        <button onclick="toggleSimulation()" id="simulation-btn" class="py-3 bg-green-500/20 text-green-400 border border-green-500/30 rounded-lg hover:bg-green-500/30 transition flex items-center justify-center gap-2">
+                        <button onclick="toggleSimulation()" id="simulation-btn" class="py-3 bg-green-500/20 text-green-600 dark:text-green-400 border border-green-500/30 rounded-lg hover:bg-green-500/30 transition flex items-center justify-center gap-2 transition-colors duration-300">
                             <i class="fas fa-play"></i>
                             <span>Simulasi: ON</span>
                         </button>
-                        <button onclick="connectDevice()" class="py-3 bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 rounded-lg hover:bg-cyan-500/30 transition flex items-center justify-center gap-2">
+                        <button onclick="connectDevice()" class="py-3 bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30 rounded-lg hover:bg-cyan-500/30 transition flex items-center justify-center gap-2 transition-colors duration-300">
                             <i class="fas fa-wifi"></i>
                             <span>Connect</span>
                         </button>
                     </div>
                     
                     <!-- Device Info -->
-                    <div class="pt-4 border-t border-gray-800">
-                        <h4 class="text-sm text-gray-400 mb-3">
+                    <div class="pt-4 border-t border-gray-300 dark:border-gray-700 transition-colors duration-300">
+                        <h4 class="text-sm text-gray-600 dark:text-gray-400 mb-3 transition-colors duration-300">
                             <i class="fas fa-info-circle mr-2"></i>Informasi Perangkat
                         </h4>
                         <div class="space-y-2">
                             <div class="flex justify-between text-sm">
-                                <span class="text-gray-400">Waktu Aktif:</span>
-                                <span id="uptime" class="font-mono text-cyan-400">00:00:00</span>
+                                <span class="text-gray-600 dark:text-gray-400 transition-colors duration-300">Waktu Aktif:</span>
+                                <span id="uptime" class="font-mono text-cyan-500">00:00:00</span>
                             </div>
                             <div class="flex justify-between text-sm">
-                                <span class="text-gray-400">Firmware:</span>
-                                <span class="font-mono text-green-400">v2.1.0</span>
+                                <span class="text-gray-600 dark:text-gray-400 transition-colors duration-300">Firmware:</span>
+                                <span class="font-mono text-green-500">v2.1.0</span>
                             </div>
                             <div class="flex justify-between text-sm">
-                                <span class="text-gray-400">IP Address:</span>
-                                <span id="ip-address" class="font-mono text-yellow-400">192.168.1.100</span>
+                                <span class="text-gray-600 dark:text-gray-400 transition-colors duration-300">IP Address:</span>
+                                <span id="ip-address" class="font-mono text-yellow-500">192.168.1.100</span>
                             </div>
                         </div>
                     </div>
@@ -499,34 +594,34 @@
     </main>
     
     <!-- Footer -->
-    <footer class="mt-8 pt-6 pb-8 border-t border-gray-800">
+    <footer class="mt-8 pt-6 pb-8 border-t border-gray-300 dark:border-gray-800 transition-colors duration-300">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                 <div class="text-center md:text-left">
                     <p class="text-lg font-bold bg-gradient-to-r from-green-400 to-emerald-300 bg-clip-text text-transparent">
                         SmartAgri IoT Dashboard
                     </p>
-                    <p class="text-sm text-gray-400 mt-1">Monitoring Sistem Pertanian Berbasis IoT</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1 transition-colors duration-300">Monitoring Sistem Pertanian Berbasis IoT</p>
                 </div>
                 
                 <div class="flex gap-4">
-                    <a href="#" class="text-gray-400 hover:text-white transition">
+                    <a href="#" class="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white transition-colors duration-300">
                         <i class="fab fa-github text-xl"></i>
                     </a>
-                    <a href="#" class="text-gray-400 hover:text-white transition">
+                    <a href="#" class="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white transition-colors duration-300">
                         <i class="fab fa-twitter text-xl"></i>
                     </a>
-                    <a href="#" class="text-gray-400 hover:text-white transition">
+                    <a href="#" class="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white transition-colors duration-300">
                         <i class="fab fa-youtube text-xl"></i>
                     </a>
                 </div>
                 
                 <div class="text-center md:text-right">
-                    <p class="text-sm text-gray-400">
+                    <p class="text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300">
                         © 2024 SmartAgri Team. All rights reserved.
                     </p>
-                    <p class="text-xs text-gray-500 mt-1">
-                        Version 1.0.0 | Dashboard Update: <span id="dashboard-version">Today</span>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 transition-colors duration-300">
+                        Version 1.0.0 | Theme: <span id="theme-indicator">Dark</span>
                     </p>
                 </div>
             </div>
@@ -543,7 +638,8 @@
             simulationActive: true,
             samplingInterval: 5000, // 5 detik
             maxDataPoints: 60, // Data untuk 60 menit (1 jam)
-            autoScroll: true
+            autoScroll: true,
+            theme: 'dark' // 'dark' atau 'light'
         };
 
         // Data storage
@@ -570,6 +666,9 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log('SmartAgri IoT Dashboard dimuat');
             
+            // Inisialisasi theme
+            initializeTheme();
+            
             // Inisialisasi charts
             initializeCharts();
             
@@ -589,9 +688,88 @@
         });
 
         // ============================================
+        // THEME MANAGEMENT
+        // ============================================
+        function initializeTheme() {
+            // Cek local storage atau default ke dark
+            const savedTheme = localStorage.getItem('smartagri-theme');
+            const themeToggle = document.getElementById('theme-toggle');
+            
+            if (savedTheme === 'light') {
+                document.body.classList.remove('dark-mode');
+                themeToggle.checked = false;
+                CONFIG.theme = 'light';
+                updateThemeIndicator('light');
+            } else {
+                document.body.classList.add('dark-mode');
+                themeToggle.checked = true;
+                CONFIG.theme = 'dark';
+                updateThemeIndicator('dark');
+            }
+            
+            // Setup event listener untuk toggle
+            themeToggle.addEventListener('change', toggleTheme);
+        }
+
+        function toggleTheme() {
+            const themeToggle = document.getElementById('theme-toggle');
+            
+            if (themeToggle.checked) {
+                // Switch to dark mode
+                document.body.classList.add('dark-mode');
+                CONFIG.theme = 'dark';
+                localStorage.setItem('smartagri-theme', 'dark');
+                updateThemeIndicator('dark');
+                addSystemLog('Theme diubah ke Dark Mode', 'info');
+            } else {
+                // Switch to light mode
+                document.body.classList.remove('dark-mode');
+                CONFIG.theme = 'light';
+                localStorage.setItem('smartagri-theme', 'light');
+                updateThemeIndicator('light');
+                addSystemLog('Theme diubah ke Light Mode', 'info');
+            }
+            
+            // Update charts untuk tema baru
+            updateChartsTheme();
+        }
+
+        function updateThemeIndicator(theme) {
+            const indicator = document.getElementById('theme-indicator');
+            indicator.textContent = theme === 'dark' ? 'Dark' : 'Light';
+            indicator.className = theme === 'dark' ? 'text-purple-500' : 'text-yellow-500';
+        }
+
+        function updateChartsTheme() {
+            if (!moistureChart || !phChart) return;
+            
+            const isDark = CONFIG.theme === 'dark';
+            const gridColor = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)';
+            const tickColor = isDark ? '#9ca3af' : '#4b5563';
+            
+            // Update moisture chart
+            moistureChart.options.scales.x.grid.color = gridColor;
+            moistureChart.options.scales.x.ticks.color = tickColor;
+            moistureChart.options.scales.y.grid.color = gridColor;
+            moistureChart.options.scales.y.ticks.color = tickColor;
+            moistureChart.update();
+            
+            // Update pH chart
+            phChart.options.scales.x.grid.color = gridColor;
+            phChart.options.scales.x.ticks.color = tickColor;
+            phChart.options.scales.y.grid.color = gridColor;
+            phChart.options.scales.y.ticks.color = tickColor;
+            phChart.update();
+        }
+
+        // ============================================
         // FUNGSI CHART (GRAFIK)
         // ============================================
         function initializeCharts() {
+            const isDark = CONFIG.theme === 'dark';
+            const gridColor = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)';
+            const tickColor = isDark ? '#9ca3af' : '#4b5563';
+
             // Chart untuk kelembaban
             const moistCtx = document.getElementById('moisture-chart').getContext('2d');
             moistureChart = new Chart(moistCtx, {
@@ -610,7 +788,41 @@
                         pointHoverRadius: 5
                     }]
                 },
-                options: getChartOptions('Kelembaban Tanah (%)', '%')
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${context.parsed.y}%`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: gridColor },
+                            ticks: { color: tickColor, maxTicksLimit: 6 }
+                        },
+                        y: {
+                            grid: { color: gridColor },
+                            ticks: { color: tickColor },
+                            title: {
+                                display: true,
+                                text: '%',
+                                color: tickColor
+                            }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    }
+                }
             });
 
             // Chart untuk pH
@@ -631,46 +843,42 @@
                         pointHoverRadius: 5
                     }]
                 },
-                options: getChartOptions('pH Level', 'pH')
-            });
-        }
-
-        function getChartOptions(title, unit) {
-            return {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        mode: 'index',
-                        intersect: false,
-                        callbacks: {
-                            label: function(context) {
-                                return `${context.dataset.label}: ${context.parsed.y} ${unit}`;
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${context.parsed.y}`;
+                                }
                             }
                         }
-                    }
-                },
-                scales: {
-                    x: {
-                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
-                        ticks: { color: '#9ca3af', maxTicksLimit: 6 }
                     },
-                    y: {
-                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
-                        ticks: { color: '#9ca3af' },
-                        title: {
-                            display: true,
-                            text: unit,
-                            color: '#9ca3af'
+                    scales: {
+                        x: {
+                            grid: { color: gridColor },
+                            ticks: { color: tickColor, maxTicksLimit: 6 }
+                        },
+                        y: {
+                            grid: { color: gridColor },
+                            ticks: { color: tickColor },
+                            title: {
+                                display: true,
+                                text: 'pH',
+                                color: tickColor
+                            }
                         }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
                     }
-                },
-                interaction: {
-                    intersect: false,
-                    mode: 'index'
                 }
-            };
+            });
         }
 
         // ============================================
@@ -754,13 +962,13 @@
             const moistStatus = document.getElementById('moisture-status');
             if (data.moisture < 40) {
                 moistStatus.textContent = 'Terlalu Kering';
-                moistStatus.className = 'text-xs px-2 py-1 rounded bg-red-500/20 text-red-400';
+                moistStatus.className = 'text-xs px-2 py-1 rounded bg-red-500/20 text-red-600 dark:text-red-400';
             } else if (data.moisture > 80) {
                 moistStatus.textContent = 'Terlalu Basah';
-                moistStatus.className = 'text-xs px-2 py-1 rounded bg-blue-500/20 text-blue-400';
+                moistStatus.className = 'text-xs px-2 py-1 rounded bg-blue-500/20 text-blue-600 dark:text-blue-400';
             } else {
                 moistStatus.textContent = 'Ideal';
-                moistStatus.className = 'text-xs px-2 py-1 rounded bg-green-500/20 text-green-400';
+                moistStatus.className = 'text-xs px-2 py-1 rounded bg-green-500/20 text-green-600 dark:text-green-400';
             }
             
             // Update pH
@@ -781,13 +989,13 @@
             const tempFeel = document.getElementById('temp-feel');
             if (data.temperature < 20) {
                 tempFeel.textContent = 'Terasa: Dingin';
-                tempFeel.className = 'text-sm text-blue-400';
+                tempFeel.className = 'text-sm text-blue-500';
             } else if (data.temperature < 30) {
                 tempFeel.textContent = 'Terasa: Nyaman';
-                tempFeel.className = 'text-sm text-green-400';
+                tempFeel.className = 'text-sm text-green-500';
             } else {
                 tempFeel.textContent = 'Terasa: Panas';
-                tempFeel.className = 'text-sm text-red-400';
+                tempFeel.className = 'text-sm text-red-500';
             }
             
             // Update baterai
@@ -808,19 +1016,19 @@
             
             if (ph < 5.5) {
                 phStatus.textContent = 'Terlalu Asam';
-                phStatus.className = 'px-3 py-1.5 rounded-full bg-red-500/20 text-red-400';
+                phStatus.className = 'px-3 py-1.5 rounded-full bg-red-500/20 text-red-600 dark:text-red-400';
             } else if (ph < 6.0) {
                 phStatus.textContent = 'Agak Asam';
-                phStatus.className = 'px-3 py-1.5 rounded-full bg-orange-500/20 text-orange-400';
+                phStatus.className = 'px-3 py-1.5 rounded-full bg-orange-500/20 text-orange-600 dark:text-orange-400';
             } else if (ph <= 7.0) {
                 phStatus.textContent = 'Optimal';
-                phStatus.className = 'px-3 py-1.5 rounded-full bg-green-500/20 text-green-400';
+                phStatus.className = 'px-3 py-1.5 rounded-full bg-green-500/20 text-green-600 dark:text-green-400';
             } else if (ph <= 7.5) {
                 phStatus.textContent = 'Agak Basa';
-                phStatus.className = 'px-3 py-1.5 rounded-full bg-blue-500/20 text-blue-400';
+                phStatus.className = 'px-3 py-1.5 rounded-full bg-blue-500/20 text-blue-600 dark:text-blue-400';
             } else {
                 phStatus.textContent = 'Terlalu Basa';
-                phStatus.className = 'px-3 py-1.5 rounded-full bg-purple-500/20 text-purple-400';
+                phStatus.className = 'px-3 py-1.5 rounded-full bg-purple-500/20 text-purple-600 dark:text-purple-400';
             }
             
             // Update pH average
@@ -833,7 +1041,7 @@
             // Reset semua bar
             bars.forEach(selector => {
                 const bar = document.querySelector(selector);
-                if (bar) bar.style.backgroundColor = '#374151'; // gray-700
+                if (bar) bar.style.backgroundColor = CONFIG.theme === 'dark' ? '#4b5563' : '#9ca3af';
             });
             
             // Tentukan berapa bar yang aktif berdasarkan strength
@@ -981,12 +1189,12 @@
             });
             
             // Tentukan warna berdasarkan type
-            let colorClass = 'text-gray-400';
+            let colorClass = 'text-gray-500 dark:text-gray-400';
             switch (type) {
-                case 'info': colorClass = 'text-blue-400'; break;
-                case 'warning': colorClass = 'text-yellow-400'; break;
-                case 'error': colorClass = 'text-red-400'; break;
-                case 'success': colorClass = 'text-green-400'; break;
+                case 'info': colorClass = 'text-blue-500'; break;
+                case 'warning': colorClass = 'text-yellow-500'; break;
+                case 'error': colorClass = 'text-red-500'; break;
+                case 'success': colorClass = 'text-green-500'; break;
             }
             
             // Buat log entry
@@ -1043,7 +1251,7 @@
                     <span class="text-sm font-medium">Device Online</span>
                 `;
                 deviceStatus.textContent = 'ONLINE';
-                deviceStatus.className = 'text-2xl font-bold text-green-400';
+                deviceStatus.className = 'text-2xl font-bold text-green-500';
                 addSystemLog('Perangkat IoT terhubung', 'success');
             } else {
                 statusElement.className = 'flex items-center gap-2 px-4 py-2 rounded-full status-offline';
@@ -1052,7 +1260,7 @@
                     <span class="text-sm font-medium">Device Offline</span>
                 `;
                 deviceStatus.textContent = 'OFFLINE';
-                deviceStatus.className = 'text-2xl font-bold text-red-400';
+                deviceStatus.className = 'text-2xl font-bold text-red-500';
                 addSystemLog('Perangkat IoT terputus', 'error');
             }
         }
@@ -1083,12 +1291,12 @@
             
             if (CONFIG.simulationActive) {
                 button.innerHTML = '<i class="fas fa-play"></i><span>Simulasi: ON</span>';
-                button.className = 'py-3 bg-green-500/20 text-green-400 border border-green-500/30 rounded-lg hover:bg-green-500/30 transition flex items-center justify-center gap-2';
+                button.className = 'py-3 bg-green-500/20 text-green-600 dark:text-green-400 border border-green-500/30 rounded-lg hover:bg-green-500/30 transition flex items-center justify-center gap-2';
                 startDataSimulation();
                 addSystemLog('Mode simulasi diaktifkan', 'success');
             } else {
                 button.innerHTML = '<i class="fas fa-pause"></i><span>Simulasi: OFF</span>';
-                button.className = 'py-3 bg-gray-800 text-gray-300 rounded-lg hover:bg-gray-700 transition flex items-center justify-center gap-2';
+                button.className = 'py-3 bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-700 transition flex items-center justify-center gap-2';
                 if (simulationInterval) {
                     clearInterval(simulationInterval);
                 }
@@ -1184,18 +1392,43 @@
             
             if (CONFIG.autoScroll) {
                 button.innerHTML = '<i class="fas fa-sync mr-1"></i> Auto-scroll: ON';
-                button.className = 'text-xs px-3 py-1.5 bg-blue-500/20 text-blue-400 rounded-lg';
+                button.className = 'text-xs px-3 py-1.5 bg-blue-500/20 text-blue-600 dark:text-blue-400 border border-blue-500/30 rounded-lg hover:bg-blue-500/30 transition-colors duration-300';
             } else {
                 button.innerHTML = '<i class="fas fa-sync mr-1"></i> Auto-scroll: OFF';
-                button.className = 'text-xs px-3 py-1.5 bg-gray-800 rounded-lg';
+                button.className = 'text-xs px-3 py-1.5 bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors duration-300';
             }
         }
 
         function clearLogs() {
             const logContainer = document.getElementById('system-log');
-            logContainer.innerHTML = '<div class="text-gray-500">[12:00:00] Log dibersihkan</div>';
+            logContainer.innerHTML = '<div class="text-gray-500 dark:text-gray-400">[12:00:00] Log dibersihkan</div>';
             addSystemLog('System log dibersihkan', 'info');
         }
 
         function dismissAlert() {
-            document.getElementById('alert-banner
+            document.getElementById('alert-banner').classList.add('hidden');
+        }
+
+        function exportChartData() {
+            // Create CSV content
+            let csvContent = "Waktu,Kelembaban (%),pH,Suhu (°C)\n";
+            
+            for (let i = 0; i < dataHistory.timestamps.length; i++) {
+                csvContent += `${dataHistory.timestamps[i]},${dataHistory.moisture[i].toFixed(2)},${dataHistory.ph[i].toFixed(2)},${dataHistory.temperature[i].toFixed(2)}\n`;
+            }
+            
+            // Create download link
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `smartagri-data-${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            
+            addSystemLog('Data chart diekspor ke CSV', 'success');
+        }
+    </script>
+</body>
+</html>

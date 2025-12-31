@@ -1429,3 +1429,292 @@
     </script>
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website dengan Tombol Buy $AGRI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #f0f0f0;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            margin-bottom: 40px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            background: linear-gradient(to right, #00b4db, #0083b0);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #a0a0c0;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+        }
+
+        .card h2 {
+            color: #4cc9f0;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .card p {
+            color: #b0b0d0;
+            line-height: 1.6;
+        }
+
+        .card i {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            color: #00b4db;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            margin-top: 40px;
+            color: #8888aa;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Tombol Buy $AGRI dengan animasi teks berjalan */
+        .agri-button-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .agri-button {
+            display: inline-block;
+            background: linear-gradient(90deg, #ff6b6b, #ffa500, #ffd700, #9acd32, #1e90ff, #9370db);
+            background-size: 400% 100%;
+            border-radius: 30px;
+            padding: 12px 24px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1rem;
+            color: white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s ease;
+            overflow: hidden;
+            position: relative;
+            border: none;
+            cursor: pointer;
+            min-width: 140px;
+            text-align: center;
+            animation: gradientShift 4s ease infinite;
+        }
+
+        .agri-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+        }
+
+        .agri-button:active {
+            transform: scale(0.98);
+        }
+
+        .marquee-text {
+            display: inline-block;
+            position: relative;
+            padding-right: 20px;
+            white-space: nowrap;
+        }
+
+        .marquee-text::after {
+            content: "🚀";
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        /* Animasi teks berjalan */
+        @keyframes marquee {
+            0% {
+                transform: translateX(100%);
+            }
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+
+        /* Animasi gradien berubah */
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* Responsif untuk mobile */
+        @media (max-width: 768px) {
+            .agri-button-container {
+                top: 15px;
+                right: 15px;
+            }
+            
+            .agri-button {
+                padding: 10px 18px;
+                font-size: 0.9rem;
+                min-width: 120px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .agri-button-container {
+                top: 10px;
+                right: 10px;
+            }
+            
+            .agri-button {
+                padding: 8px 15px;
+                font-size: 0.85rem;
+                min-width: 110px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Tombol Buy $AGRI di pojok kanan atas -->
+    <div class="agri-button-container">
+        <a href="https://pump.fun/" class="agri-button" target="_blank" id="agriButton">
+            <span class="marquee-text">Buy $AGRI</span>
+        </a>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>Selamat Datang di Website Kami</h1>
+            <p class="subtitle">Ini adalah contoh halaman website dengan tombol "Buy $AGRI" di pojok kanan atas. Tombol tersebut memiliki animasi teks berjalan dan mengarah ke Pump.fun.</p>
+        </header>
+
+        <main class="content">
+            <div class="card">
+                <i class="fas fa-seedling"></i>
+                <h2>Tentang $AGRI</h2>
+                <p>$AGRI adalah token inovatif yang mendukung sektor pertanian modern dengan teknologi blockchain. Token ini dirancang untuk memberikan akses yang lebih luas kepada investor dan mendukung petani di seluruh dunia.</p>
+            </div>
+
+            <div class="card">
+                <i class="fas fa-chart-line"></i>
+                <h2>Potensi Investasi</h2>
+                <p>Dengan teknologi terkini dan tim yang berpengalaman, $AGRI menawarkan potensi pertumbuhan yang signifikan dalam ekosistem cryptocurrency. Bergabunglah sekarang untuk menjadi bagian dari revolusi pertanian digital.</p>
+            </div>
+
+            <div class="card">
+                <i class="fas fa-globe"></i>
+                <h2>Visi Masa Depan</h2>
+                <p>Kami bertujuan menciptakan ekosistem yang berkelanjutan di mana teknologi blockchain dapat meningkatkan efisiensi dan transparansi dalam industri pertanian global.</p>
+            </div>
+        </main>
+
+        <footer>
+            <p>© 2023 Contoh Website. Tombol "Buy $AGRI" mengarah ke Pump.fun.</p>
+            <p>Disclaimer: Ini hanya contoh implementasi tombol. Lakukan riset sendiri sebelum berinvestasi.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Menambahkan animasi marquee untuk teks di tombol
+        document.addEventListener('DOMContentLoaded', function() {
+            const agriButton = document.getElementById('agriButton');
+            const marqueeText = agriButton.querySelector('.marquee-text');
+            
+            // Simpan teks asli
+            const originalText = marqueeText.textContent;
+            
+            // Duplikat teks untuk efek berkelanjutan
+            marqueeText.innerHTML = originalText + '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + originalText;
+            
+            // Terapkan animasi marquee
+            marqueeText.style.animation = 'marquee 8s linear infinite';
+            
+            // Efek hover tambahan
+            agriButton.addEventListener('mouseenter', function() {
+                marqueeText.style.animationPlayState = 'paused';
+            });
+            
+            agriButton.addEventListener('mouseleave', function() {
+                marqueeText.style.animationPlayState = 'running';
+            });
+            
+            // Tambahkan efek klik
+            agriButton.addEventListener('click', function() {
+                // Buka link di tab baru (sudah diatur oleh target="_blank" di HTML)
+                // Tambahkan efek visual klik
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.style.transform = '';
+                }, 200);
+            });
+        });
+    </script>
+</body>
+</html>
